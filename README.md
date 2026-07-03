@@ -55,6 +55,7 @@ Common options (see `tools/render/render.mjs` header for the full list):
 | `--width` / `--height` | `1080` / `1920` | Output resolution (px) |
 | `--crf` | `16` | x264 quality (lower = better/bigger) |
 | `--format` | `mp4` | `mp4` (H.264 delivery file) or `mov` (ProRes 422 HQ master) |
+| `--supersample` | `2` | Capture at N x the output res, downsample with Lanczos for cleaner edges. `1` disables. |
 | `--duration` | from `window.__REEL__` | Override the captured length (ms) |
 
 Example - a 4K-native master plus a delivery file:

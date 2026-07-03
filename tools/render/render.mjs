@@ -22,6 +22,9 @@
 //   --duration <ms>       Override the reel's window.__REEL__.durationMs
 //   --crf <n>             x264 quality, lower = higher quality (default: 16)
 //   --format <mp4|mov>    mp4 = H.264 delivery file, mov = ProRes 422 HQ master
+//   --supersample <n>      Capture at N x the output resolution and downsample
+//                          with Lanczos (default: 2) - sharper text/gradient
+//                          edges than rendering 1:1. Set to 1 to disable.
 //   --keep-frames          Don't delete the intermediate PNG frames
 //   --font-timeout <ms>   Max time to wait for webfonts to settle (default: 8000)
 
@@ -47,6 +50,7 @@ function parseCliArgs(argv) {
       duration: { type: 'string' },
       crf: { type: 'string', default: '16' },
       format: { type: 'string', default: 'mp4' },
+      supersample: { type: 'string', default: '2' },
       'keep-frames': { type: 'boolean', default: false },
       'font-timeout': { type: 'string', default: '8000' },
     },
@@ -67,6 +71,7 @@ function parseCliArgs(argv) {
     duration: values.duration ? Number(values.duration) : undefined,
     crf: Number(values.crf),
     format: values.format,
+    supersample: Number(values.supersample),
     keepFrames: values['keep-frames'],
     fontTimeout: Number(values['font-timeout']),
   };
@@ -118,16 +123,21 @@ async function main() {
     : path.resolve('out', `${path.basename(inputPath, path.extname(inputPath))}.${opts.format}`);
   mkdirSync(path.dirname(outPath), { recursive: true });
 
-  const scale = opts.width / opts.stageWidth;
+  const captureWidth = opts.width * opts.supersample;
+  const captureHeight = opts.height * opts.supersample;
+  const scale = captureWidth / opts.stageWidth;
   const expectedHeight = Math.round(opts.stageHeight * scale);
-  if (Math.abs(expectedHeight - opts.height) > 1) {
+  if (Math.abs(expectedHeight - captureHeight) > opts.supersample) {
     console.warn(
       `[render] warning: --width/--height aspect ratio (${opts.width}x${opts.height}) doesn't match ` +
       `the stage aspect ratio (${opts.stageWidth}x${opts.stageHeight}). Output will be stretched.`
     );
   }
 
-  console.log(`[render] launching Chromium (scale ${scale.toFixed(3)}x, stage ${opts.stageWidth}x${opts.stageHeight} -> ${opts.width}x${opts.height})`);
+  console.log(
+    `[render] launching Chromium (capturing ${captureWidth}x${captureHeight} at ${scale.toFixed(3)}x scale, ` +
+    `stage ${opts.stageWidth}x${opts.stageHeight} -> ${opts.width}x${opts.height} output${opts.supersample > 1 ? ` via ${opts.supersample}x supersample` : ''})`
+  );
   const browser = await chromium.launch();
   const context = await browser.newContext({
     viewport: { width: opts.stageWidth, height: opts.stageHeight },
@@ -208,16 +218,21 @@ async function main() {
 
   const ffmpegPath = await resolveFfmpegPath();
   const framePattern = path.join(framesDir, 'frame_%06d.png');
+  const scaleFilter = opts.supersample > 1
+    ? ['-vf', `scale=${opts.width}:${opts.height}:flags=lanczos`]
+    : [];
   let ffmpegArgs;
   if (opts.format === 'mov') {
     ffmpegArgs = [
       '-y', '-framerate', String(opts.fps), '-i', framePattern,
+      ...scaleFilter,
       '-c:v', 'prores_ks', '-profile:v', '3', '-pix_fmt', 'yuv422p10le',
       outPath,
     ];
   } else {
     ffmpegArgs = [
       '-y', '-framerate', String(opts.fps), '-i', framePattern,
+      ...scaleFilter,
       '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
       '-crf', String(opts.crf), '-preset', 'slow', '-movflags', '+faststart',
       outPath,
