@@ -1,0 +1,39 @@
+/* Self-hosted webfonts for GetSetReply reels.
+   Self-hosting (vs. linking a CDN) keeps the render pipeline deterministic:
+   no font-swap flicker, no dependency on a third-party host being up. */
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./space-mono/SpaceMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./space-mono/SpaceMono-Bold.woff2') format('woff2');
+}
+
+/*
+General Sans is distributed exclusively by Fontshare and isn't mirrored on
+any CDN this workspace can reach, so it's still loaded live from Fontshare
+(see the <link> tag each reel keeps in its <head>) instead of from here.
+
+To self-host it (recommended before doing unattended/offline renders):
+  1. Download the weights you use from https://www.fontshare.com/fonts/general-sans
+  2. Save them as assets/fonts/general-sans/GeneralSans-<Weight>.woff2
+  3. Uncomment and extend the block below for each weight
+  4. Remove the Fontshare <link> from the reel's <head>
+
+@font-face {
+  font-family: 'General Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./general-sans/GeneralSans-Bold.woff2') format('woff2');
+}
+*/

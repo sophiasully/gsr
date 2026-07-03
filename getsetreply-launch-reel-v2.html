@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GetSetReply · Launch Reel</title>
-<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
 <style>
 :root{
   --dark:#061614;
@@ -44,7 +44,7 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 /* ---------- Scene 1: Hello, GetSetReply. ---------- */
 #s1{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:0 30px; text-align:center; }
 #s1 .hello, #s1 .brandname{
-  font-family:'General Sans',sans-serif; font-weight:700; font-size:52px;
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:52px;
   letter-spacing:-.025em; line-height:1.05; color:var(--cream);
   opacity:0;
 }
@@ -54,12 +54,12 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 #s2{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
 #s2 .stack{ display:flex; flex-direction:column; align-items:center; gap:8px; }
 #s2 .kick{
-  font-family:'General Sans',sans-serif; font-weight:700; font-size:64px;
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:64px;
   letter-spacing:-.03em; line-height:1.02; color:var(--green);
   margin-bottom:20px; opacity:0; transform:translateY(22px);
 }
 #s2 .word{
-  font-family:'General Sans',sans-serif; font-weight:700; font-size:62px;
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:62px;
   letter-spacing:-.03em; line-height:1.02; color:var(--cream);
   opacity:0; transform:translateY(22px);
 }
@@ -148,6 +148,13 @@ function play(){
 }
 document.getElementById('replay').addEventListener('click', play);
 window.addEventListener('load', ()=> setTimeout(play, 300));
+
+// Render-pipeline convention (see tools/render): the last scene's start time
+// plus its duration is the exact point the reel is done playing.
+window.__REEL__ = {
+  durationMs: 300 + scenes.reduce((t, s) => t + s.dur, 0),
+  startDelayMs: 300,
+};
 </script>
 </body>
 </html>
