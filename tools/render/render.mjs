@@ -110,6 +110,88 @@ function runFfmpeg(ffmpegPath, args) {
   });
 }
 
+// Launches a fresh Chromium, navigates to the reel, lets fonts/network
+// settle, and (re)starts the reel's timeline via window.__REEL__.play() so
+// frame 0 lines up with the reel's actual t=0. Used both for the initial
+// launch and to recover a stalled capture (see the retry loop in main()).
+async function launchAndPrepare(inputPath, opts, { quiet = false } = {}) {
+  const log = quiet ? () => {} : (...args) => console.log(...args);
+  const warn = quiet ? () => {} : (...args) => console.warn(...args);
+
+  const captureWidth = opts.width * opts.supersample;
+  const scale = captureWidth / opts.stageWidth;
+
+  const browser = await chromium.launch();
+  const context = await browser.newContext({
+    viewport: { width: opts.stageWidth, height: opts.stageHeight },
+    deviceScaleFactor: scale,
+  });
+  const page = await context.newPage();
+  const client = await context.newCDPSession(page);
+
+  await client.send('Emulation.setVirtualTimePolicy', { policy: 'pause' });
+
+  const failedRequests = [];
+  page.on('requestfailed', (req) => {
+    failedRequests.push({ url: req.url(), error: req.failure()?.errorText ?? 'unknown error' });
+  });
+
+  const fileUrl = url.pathToFileURL(inputPath).href;
+  await page.goto(fileUrl, { waitUntil: 'commit' });
+
+  log('[render] settling network + webfonts under virtual time...');
+  await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.fontTimeout);
+
+  if (failedRequests.length) {
+    warn(`[render] WARNING: ${failedRequests.length} network request(s) failed while loading the page ` +
+      '(a blocked/unreachable stylesheet here means its @font-face rules never registered at all, ' +
+      "so the font check below won't catch it - the text will silently render in a fallback font):");
+    for (const r of failedRequests) warn(`  - ${r.url} (${r.error})`);
+  }
+
+  const readyState = await page.evaluate(() => document.readyState);
+  if (readyState !== 'complete') {
+    log('[render] page not fully settled yet, granting more virtual time...');
+    await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.fontTimeout);
+  }
+
+  const fontReport = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return [...document.fonts].map((f) => ({ family: f.family, weight: f.weight, status: f.status }));
+  });
+  // "unloaded" just means that @font-face was never needed for layout (e.g. a
+  // declared weight the reel doesn't use) - only "error" means it was needed
+  // and failed, which is the case worth warning about.
+  const failedFonts = fontReport.filter((f) => f.status === 'error');
+  if (failedFonts.length) {
+    warn(`[render] WARNING: ${failedFonts.length} font face(s) failed to load and will fall back to a system font:`);
+    for (const f of failedFonts) warn(`  - ${f.family} ${f.weight}`);
+  } else {
+    log(`[render] fonts OK (${fontReport.filter((f) => f.status === 'loaded').length} loaded, ${fontReport.filter((f) => f.status === 'unloaded').length} unused).`);
+  }
+
+  const reelMeta = await page.evaluate(() => window.__REEL__ ?? null);
+
+  // The settle step above deliberately lets virtual time run (so real
+  // network/font fetches can complete), which means any load-triggered
+  // autoplay in the reel has likely already raced ahead of or through its
+  // whole timeline before a single frame is captured. If the reel exposes
+  // `window.__REEL__.play`, call it now to (re)start the timeline from a
+  // clean state so frame 0 lines up with the reel's actual t=0.
+  const replayed = await page.evaluate(() => {
+    if (window.__REEL__ && typeof window.__REEL__.play === 'function') {
+      window.__REEL__.play();
+      return true;
+    }
+    return false;
+  });
+  log(replayed
+    ? '[render] restarted reel timeline via window.__REEL__.play() to align with frame capture'
+    : '[render] no window.__REEL__.play() found - assuming the reel\'s own autoplay already lines up with frame 0');
+
+  return { browser, page, client, reelMeta };
+}
+
 async function main() {
   const opts = parseCliArgs(process.argv.slice(2));
 
@@ -138,56 +220,9 @@ async function main() {
     `[render] launching Chromium (capturing ${captureWidth}x${captureHeight} at ${scale.toFixed(3)}x scale, ` +
     `stage ${opts.stageWidth}x${opts.stageHeight} -> ${opts.width}x${opts.height} output${opts.supersample > 1 ? ` via ${opts.supersample}x supersample` : ''})`
   );
-  const browser = await chromium.launch();
-  const context = await browser.newContext({
-    viewport: { width: opts.stageWidth, height: opts.stageHeight },
-    deviceScaleFactor: scale,
-  });
-  const page = await context.newPage();
-  const client = await context.newCDPSession(page);
 
-  await client.send('Emulation.setVirtualTimePolicy', { policy: 'pause' });
+  let { browser, page, client, reelMeta } = await launchAndPrepare(inputPath, opts);
 
-  const failedRequests = [];
-  page.on('requestfailed', (req) => {
-    failedRequests.push({ url: req.url(), error: req.failure()?.errorText ?? 'unknown error' });
-  });
-
-  const fileUrl = url.pathToFileURL(inputPath).href;
-  await page.goto(fileUrl, { waitUntil: 'commit' });
-
-  console.log('[render] settling network + webfonts under virtual time...');
-  await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.fontTimeout);
-
-  if (failedRequests.length) {
-    console.warn(`[render] WARNING: ${failedRequests.length} network request(s) failed while loading the page ` +
-      '(a blocked/unreachable stylesheet here means its @font-face rules never registered at all, ' +
-      "so the font check below won't catch it - the text will silently render in a fallback font):");
-    for (const r of failedRequests) console.warn(`  - ${r.url} (${r.error})`);
-  }
-
-  const readyState = await page.evaluate(() => document.readyState);
-  if (readyState !== 'complete') {
-    console.log('[render] page not fully settled yet, granting more virtual time...');
-    await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.fontTimeout);
-  }
-
-  const fontReport = await page.evaluate(async () => {
-    await document.fonts.ready;
-    return [...document.fonts].map((f) => ({ family: f.family, weight: f.weight, status: f.status }));
-  });
-  // "unloaded" just means that @font-face was never needed for layout (e.g. a
-  // declared weight the reel doesn't use) - only "error" means it was needed
-  // and failed, which is the case worth warning about.
-  const failedFonts = fontReport.filter((f) => f.status === 'error');
-  if (failedFonts.length) {
-    console.warn(`[render] WARNING: ${failedFonts.length} font face(s) failed to load and will fall back to a system font:`);
-    for (const f of failedFonts) console.warn(`  - ${f.family} ${f.weight}`);
-  } else {
-    console.log(`[render] fonts OK (${fontReport.filter((f) => f.status === 'loaded').length} loaded, ${fontReport.filter((f) => f.status === 'unloaded').length} unused).`);
-  }
-
-  const reelMeta = await page.evaluate(() => window.__REEL__ ?? null);
   const durationMs = opts.duration ?? reelMeta?.durationMs;
   if (!durationMs) {
     throw new Error(
@@ -197,46 +232,60 @@ async function main() {
   }
   console.log(`[render] duration: ${durationMs}ms @ ${opts.fps}fps${reelMeta ? ' (from window.__REEL__)' : ' (from --duration)'}`);
 
-  // The settle step above deliberately lets virtual time run (so real
-  // network/font fetches can complete), which means any load-triggered
-  // autoplay in the reel has likely already raced ahead of or through its
-  // whole timeline before a single frame is captured. If the reel exposes
-  // `window.__REEL__.play`, call it now to (re)start the timeline from a
-  // clean state so frame 0 below lines up with the reel's actual t=0.
-  const replayed = await page.evaluate(() => {
-    if (window.__REEL__ && typeof window.__REEL__.play === 'function') {
-      window.__REEL__.play();
-      return true;
-    }
-    return false;
-  });
-  console.log(replayed
-    ? '[render] restarted reel timeline via window.__REEL__.play() to align with frame capture'
-    : '[render] no window.__REEL__.play() found - assuming the reel\'s own autoplay already lines up with frame 0');
-
   const frameMs = 1000 / opts.fps;
   const totalFrames = Math.max(1, Math.round((durationMs / 1000) * opts.fps));
   const framesDir = mkdtempSync(path.join(tmpdir(), 'gsr-render-'));
   console.log(`[render] capturing ${totalFrames} frames to ${framesDir}`);
 
+  // Chromium occasionally deadlocks a single frame capture in this sandbox
+  // (observed as a `Page.captureScreenshot`/`page.screenshot` call that
+  // never resolves, seemingly tied to compositing several concurrently
+  // starting CSS animations under a virtual-time clock). No amount of
+  // waiting or nudging the virtual clock recovers it, but a fresh Chromium
+  // does: on a stall, relaunch, fast-forward virtual time (no screenshots)
+  // back to this frame's timestamp, and resume capturing from there.
+  const screenshotTimeoutMs = 20000;
+  const maxRestarts = 8;
+  let restarts = 0;
+
   for (let i = 0; i < totalFrames; i++) {
-    if (i > 0) {
-      await advanceVirtualTime(client, 'advance', frameMs);
-    }
     let buf;
-    for (let attempt = 1; ; attempt++) {
+    let needsAdvance = i > 0;
+    for (;;) {
       try {
-        buf = await page.screenshot({ type: 'png', timeout: 60000 });
+        if (needsAdvance) {
+          await advanceVirtualTime(client, 'advance', frameMs);
+        }
+        const { data } = await Promise.race([
+          client.send('Page.captureScreenshot', { format: 'png' }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error(`frame ${i} capture timed out after ${screenshotTimeoutMs}ms`)), screenshotTimeoutMs)
+          ),
+        ]);
+        buf = Buffer.from(data, 'base64');
         break;
       } catch (err) {
-        if (attempt >= 3) throw err;
-        console.warn(`[render] frame ${i} screenshot attempt ${attempt} failed (${err.message}), retrying...`);
+        if (restarts >= maxRestarts) {
+          throw new Error(`frame ${i} failed after ${restarts} Chromium restarts: ${err.message}`);
+        }
+        restarts++;
+        console.warn(`[render] frame ${i} stalled (${err.message}); restarting Chromium and fast-forwarding to recover (restart ${restarts}/${maxRestarts})...`);
+        await browser.close().catch(() => {});
+        ({ browser, page, client } = await launchAndPrepare(inputPath, opts, { quiet: true }));
+        if (i > 0) {
+          await advanceVirtualTime(client, 'advance', i * frameMs);
+        }
+        needsAdvance = false;
       }
     }
     writeFileSync(path.join(framesDir, `frame_${String(i).padStart(6, '0')}.png`), buf);
     if (i % Math.max(1, Math.round(opts.fps)) === 0) {
       console.log(`[render] frame ${i + 1}/${totalFrames}`);
     }
+  }
+
+  if (restarts > 0) {
+    console.log(`[render] recovered from ${restarts} mid-capture Chromium stall(s)`);
   }
 
   await browser.close();
