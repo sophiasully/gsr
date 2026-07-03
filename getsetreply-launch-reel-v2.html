@@ -67,6 +67,19 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 
 /* ---------- Scene 3: logo + airplane finale ---------- */
 #s3{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }
+#s3 .logo{
+  display:flex; align-items:center; gap:14px;
+  opacity:0; transform:scale(.7);
+}
+#s3 .logo .plane{
+  width:34px; height:34px; color:var(--green-bright);
+  transform:rotate(0deg);
+}
+#s3 .logo .wordmark{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:36px;
+  letter-spacing:-.02em; color:var(--cream);
+}
+#s3 .logo .wordmark .set{ color:var(--green-bright); }
 #s3 .url{
   font-family:'Space Mono',monospace; font-weight:700; font-size:14px;
   letter-spacing:.24em; text-transform:uppercase; color:var(--cream);
@@ -84,7 +97,9 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 .scene#s2.on .word:nth-of-type(3){ animation:fadeUp .8s var(--ease-out) 2.9s forwards; }
 .scene#s2.on .word:nth-of-type(4){ animation:fadeUp .9s var(--ease-out) 3.8s forwards; }
 
-.scene#s3.on .url{ animation:fadeUp 0.8s var(--ease-out) 0.3s forwards; }
+.scene#s3.on .logo{ animation:wrapIn .6s var(--ease-out) .2s forwards; }
+.scene#s3.on .logo .plane{ animation:spin360 .6s var(--ease-out) .2s forwards; }
+.scene#s3.on .url{ animation:fadeUp 0.8s var(--ease-out) 1s forwards; }
 
 @keyframes wrapIn{ from{ opacity:0; transform:scale(.7); } to{ opacity:1; transform:scale(1); } }
 @keyframes spin360{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
@@ -124,6 +139,10 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
   </div>
 
   <div class="scene" id="s3">
+    <div class="logo">
+      <svg class="plane" viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      <span class="wordmark">Get<span class="set">Set</span>Reply</span>
+    </div>
     <div class="url">getsetreply<span class="dim">.com</span></div>
   </div>
 
