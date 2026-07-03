@@ -161,6 +161,12 @@ async function main() {
   // production HTML-to-video renderers use (a WAAPI adapter over CSS keyframes) -
   // it makes frame timing an explicit, spec-guaranteed seek rather than a side effect.
   await page.addInitScript(() => {
+    // documentElement doesn't exist yet this early in navigation (parsing
+    // hasn't started), so defer to DOMContentLoaded - still long before any
+    // frame gets captured.
+    document.addEventListener('DOMContentLoaded', () => {
+      document.documentElement.classList.add('gsr-render');
+    });
     window.__trackedAnimations = [];
     const track = (animation) => {
       if (animation.__tracked) return;

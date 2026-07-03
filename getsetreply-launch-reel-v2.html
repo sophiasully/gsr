@@ -54,12 +54,12 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 #s2{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
 #s2 .stack{ display:flex; flex-direction:column; align-items:center; gap:8px; }
 #s2 .kick{
-  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:64px;
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:44px;
   letter-spacing:-.03em; line-height:1.02; color:var(--green);
   margin-bottom:20px; opacity:0; transform:translateY(22px);
 }
 #s2 .word{
-  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:62px;
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:44px;
   letter-spacing:-.03em; line-height:1.02; color:var(--cream);
   opacity:0; transform:translateY(22px);
 }
@@ -99,6 +99,10 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
   padding:8px 16px; cursor:pointer; opacity:.85; transition:opacity .2s;
 }
 .replay:hover{ opacity:1; }
+/* tools/render marks <html> with this class before capture, so the replay
+   button (only meaningful for interactive preview in a browser) never shows
+   up in the exported video. */
+.gsr-render .replay{ display:none; }
 </style>
 </head>
 <body>
