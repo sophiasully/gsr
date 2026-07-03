@@ -223,7 +223,16 @@ async function main() {
     if (i > 0) {
       await advanceVirtualTime(client, 'advance', frameMs);
     }
-    const buf = await page.screenshot({ type: 'png' });
+    let buf;
+    for (let attempt = 1; ; attempt++) {
+      try {
+        buf = await page.screenshot({ type: 'png', timeout: 60000 });
+        break;
+      } catch (err) {
+        if (attempt >= 3) throw err;
+        console.warn(`[render] frame ${i} screenshot attempt ${attempt} failed (${err.message}), retrying...`);
+      }
+    }
     writeFileSync(path.join(framesDir, `frame_${String(i).padStart(6, '0')}.png`), buf);
     if (i % Math.max(1, Math.round(opts.fps)) === 0) {
       console.log(`[render] frame ${i + 1}/${totalFrames}`);
