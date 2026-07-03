@@ -26,7 +26,10 @@
 //                          with Lanczos (default: 2) - sharper text/gradient
 //                          edges than rendering 1:1. Set to 1 to disable.
 //   --keep-frames          Don't delete the intermediate PNG frames
-//   --font-timeout <ms>   Max time to wait for webfonts to settle (default: 8000)
+//   --settle-budget-ms <ms>  Virtual ms granted for network/webfonts to
+//                          settle before the reel's own duration is measured
+//                          (default: 8000). The reel may autoplay partway
+//                          through this - see window.__REEL__.playStartedAt.
 
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -52,7 +55,7 @@ function parseCliArgs(argv) {
       format: { type: 'string', default: 'mp4' },
       supersample: { type: 'string', default: '2' },
       'keep-frames': { type: 'boolean', default: false },
-      'font-timeout': { type: 'string', default: '8000' },
+      'settle-budget-ms': { type: 'string', default: '8000' },
     },
   });
 
@@ -73,7 +76,7 @@ function parseCliArgs(argv) {
     format: values.format,
     supersample: Number(values.supersample),
     keepFrames: values['keep-frames'],
-    fontTimeout: Number(values['font-timeout']),
+    settleBudgetMs: Number(values['settle-budget-ms']),
   };
 }
 
@@ -144,47 +147,59 @@ async function main() {
     deviceScaleFactor: scale,
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(60000);
   const client = await context.newCDPSession(page);
-
-  await client.send('Emulation.setVirtualTimePolicy', { policy: 'pause' });
 
   const failedRequests = [];
   page.on('requestfailed', (req) => {
     failedRequests.push({ url: req.url(), error: req.failure()?.errorText ?? 'unknown error' });
   });
 
+  // Belt-and-suspenders determinism: explicitly seek every CSS animation/transition
+  // via the Web Animations API instead of relying on page.screenshot() implicitly
+  // ticking the compositor forward by the right amount. This is the same technique
+  // production HTML-to-video renderers use (a WAAPI adapter over CSS keyframes) -
+  // it makes frame timing an explicit, spec-guaranteed seek rather than a side effect.
+  await page.addInitScript(() => {
+    window.__trackedAnimations = [];
+    const track = (animation) => {
+      if (animation.__tracked) return;
+      animation.__tracked = true;
+      animation.__base = performance.now() - animation.currentTime;
+      animation.pause();
+      window.__trackedAnimations.push(animation);
+    };
+    document.addEventListener('animationstart', (e) => track(e.animation), true);
+    document.addEventListener('transitionstart', (e) => {
+      const anim = e.target.getAnimations().find((a) => a.transitionProperty === e.propertyName);
+      if (anim) track(anim);
+    }, true);
+  });
+
+  await client.send('Emulation.setVirtualTimePolicy', { policy: 'pause' });
   const fileUrl = url.pathToFileURL(inputPath).href;
   await page.goto(fileUrl, { waitUntil: 'commit' });
 
+  // Letting network/fonts settle requires actually advancing virtual time
+  // (Emulation.setVirtualTimePolicy's 'pause' freezes the *entire* JS engine,
+  // including promise microtasks like document.fonts.ready - not just
+  // timers - so there's no way to let a network request resolve without also
+  // letting the reel's own setTimeout-driven scenes run). That means the
+  // reel's autoplay (window 'load' -> setTimeout(play, 300)) may well fire
+  // during this settle budget, some unknown amount of virtual time into its
+  // own timeline by the time settling ends. Rather than fight that, the reel
+  // records exactly when play() started (window.__REEL__.playStartedAt, in
+  // performance.now() terms) - so once settling ends we can measure how far
+  // in we already are and capture only the remaining duration, instead of
+  // wrongly treating frame 0 as the reel's t=0.
   console.log('[render] settling network + webfonts under virtual time...');
-  await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.fontTimeout);
+  await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.settleBudgetMs);
 
   if (failedRequests.length) {
     console.warn(`[render] WARNING: ${failedRequests.length} network request(s) failed while loading the page ` +
       '(a blocked/unreachable stylesheet here means its @font-face rules never registered at all, ' +
-      "so the font check below won't catch it - the text will silently render in a fallback font):");
+      "so the font check below won't catch it - the text may render in a fallback font):");
     for (const r of failedRequests) console.warn(`  - ${r.url} (${r.error})`);
-  }
-
-  const readyState = await page.evaluate(() => document.readyState);
-  if (readyState !== 'complete') {
-    console.log('[render] page not fully settled yet, granting more virtual time...');
-    await advanceVirtualTime(client, 'pauseIfNetworkFetchesPending', opts.fontTimeout);
-  }
-
-  const fontReport = await page.evaluate(async () => {
-    await document.fonts.ready;
-    return [...document.fonts].map((f) => ({ family: f.family, weight: f.weight, status: f.status }));
-  });
-  // "unloaded" just means that @font-face was never needed for layout (e.g. a
-  // declared weight the reel doesn't use) - only "error" means it was needed
-  // and failed, which is the case worth warning about.
-  const failedFonts = fontReport.filter((f) => f.status === 'error');
-  if (failedFonts.length) {
-    console.warn(`[render] WARNING: ${failedFonts.length} font face(s) failed to load and will fall back to a system font:`);
-    for (const f of failedFonts) console.warn(`  - ${f.family} ${f.weight}`);
-  } else {
-    console.log(`[render] fonts OK (${fontReport.filter((f) => f.status === 'loaded').length} loaded, ${fontReport.filter((f) => f.status === 'unloaded').length} unused).`);
   }
 
   const reelMeta = await page.evaluate(() => window.__REEL__ ?? null);
@@ -195,10 +210,28 @@ async function main() {
       'to the reel\'s script, or pass --duration <ms> explicitly.'
     );
   }
-  console.log(`[render] duration: ${durationMs}ms @ ${opts.fps}fps${reelMeta ? ' (from window.__REEL__)' : ' (from --duration)'}`);
+
+  let alreadyElapsedMs = 0;
+  if (reelMeta && 'playStartedAt' in reelMeta) {
+    const timing = await page.evaluate(() => ({
+      now: performance.now(),
+      playStartedAt: window.__REEL__.playStartedAt,
+    }));
+    if (timing.playStartedAt == null) {
+      console.warn("[render] warning: reel hasn't called play() yet after settling - it may be desynced from frame 0");
+    } else {
+      alreadyElapsedMs = Math.max(0, timing.now - timing.playStartedAt);
+    }
+  }
+
+  const remainingMs = Math.max(0, durationMs - alreadyElapsedMs);
+  console.log(
+    `[render] duration: ${durationMs}ms @ ${opts.fps}fps${reelMeta ? ' (from window.__REEL__)' : ' (from --duration)'}` +
+    (alreadyElapsedMs > 0 ? ` - ${alreadyElapsedMs.toFixed(0)}ms already elapsed during settling, capturing remaining ${remainingMs.toFixed(0)}ms` : '')
+  );
 
   const frameMs = 1000 / opts.fps;
-  const totalFrames = Math.max(1, Math.round((durationMs / 1000) * opts.fps));
+  const totalFrames = Math.max(1, Math.round((remainingMs / 1000) * opts.fps));
   const framesDir = mkdtempSync(path.join(tmpdir(), 'gsr-render-'));
   console.log(`[render] capturing ${totalFrames} frames to ${framesDir}`);
 
@@ -206,11 +239,36 @@ async function main() {
     if (i > 0) {
       await advanceVirtualTime(client, 'advance', frameMs);
     }
+    await page.evaluate(() => {
+      window.__trackedAnimations = window.__trackedAnimations.filter((a) => a.playState !== 'idle');
+      for (const a of window.__trackedAnimations) {
+        try {
+          a.currentTime = performance.now() - a.__base;
+        } catch {
+          // Animation was cancelled (e.g. its scene's .on class was removed) between
+          // being tracked and this resync - nothing to seek, safe to ignore.
+        }
+      }
+    });
     const buf = await page.screenshot({ type: 'png' });
     writeFileSync(path.join(framesDir, `frame_${String(i).padStart(6, '0')}.png`), buf);
     if (i % Math.max(1, Math.round(opts.fps)) === 0) {
       console.log(`[render] frame ${i + 1}/${totalFrames}`);
     }
+  }
+
+  const fontReport = await page.evaluate(() =>
+    [...document.fonts].map((f) => ({ family: f.family, weight: f.weight, status: f.status }))
+  );
+  // "unloaded" just means that @font-face was never needed for layout (e.g. a
+  // declared weight the reel doesn't use) - only "error" means it was needed
+  // and failed, which is the case worth warning about.
+  const failedFonts = fontReport.filter((f) => f.status === 'error');
+  if (failedFonts.length) {
+    console.warn(`[render] WARNING: ${failedFonts.length} font face(s) failed to load and rendered in a fallback font:`);
+    for (const f of failedFonts) console.warn(`  - ${f.family} ${f.weight}`);
+  } else {
+    console.log(`[render] fonts OK (${fontReport.filter((f) => f.status === 'loaded').length} loaded, ${fontReport.filter((f) => f.status === 'unloaded').length} unused).`);
   }
 
   await browser.close();

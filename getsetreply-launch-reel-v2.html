@@ -135,6 +135,7 @@ const scenes = [
 let timers = [];
 function clearTimers(){ timers.forEach(t=>clearTimeout(t)); timers = []; }
 function play(){
+  window.__REEL__.playStartedAt = performance.now();
   clearTimers();
   scenes.forEach(s=> s.el.classList.remove('on'));
   let t = 0;
@@ -149,11 +150,15 @@ function play(){
 document.getElementById('replay').addEventListener('click', play);
 window.addEventListener('load', ()=> setTimeout(play, 300));
 
-// Render-pipeline convention (see tools/render): the last scene's start time
-// plus its duration is the exact point the reel is done playing.
+// Render-pipeline convention (see tools/render): durationMs is how long
+// playback runs once started. playStartedAt is set by play() itself (in
+// performance.now() terms) so the renderer can tell how far into the
+// timeline autoplay already got while network/fonts were settling, and
+// capture only the remaining duration instead of assuming frame 0 is t=0.
 window.__REEL__ = {
   durationMs: 300 + scenes.reduce((t, s) => t + s.dur, 0),
   startDelayMs: 300,
+  playStartedAt: null,
 };
 </script>
 </body>
