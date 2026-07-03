@@ -139,10 +139,14 @@ function play(){
 window.addEventListener('load', ()=> setTimeout(play, 300));
 
 // Render-pipeline convention (see tools/render): the last scene's start time
-// plus its duration is the exact point the reel is done playing.
+// plus its duration is the exact point the reel is done playing. `play` is
+// exposed so the renderer can (re)start the timeline itself right before it
+// starts capturing frames, instead of racing the load-triggered autoplay
+// above against the virtual-time clock used to settle fonts/network.
 window.__REEL__ = {
   durationMs: 300 + scenes.reduce((t, s) => t + s.dur, 0),
   startDelayMs: 300,
+  play,
 };
 </script>
 </body>

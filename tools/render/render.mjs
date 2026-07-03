@@ -197,6 +197,23 @@ async function main() {
   }
   console.log(`[render] duration: ${durationMs}ms @ ${opts.fps}fps${reelMeta ? ' (from window.__REEL__)' : ' (from --duration)'}`);
 
+  // The settle step above deliberately lets virtual time run (so real
+  // network/font fetches can complete), which means any load-triggered
+  // autoplay in the reel has likely already raced ahead of or through its
+  // whole timeline before a single frame is captured. If the reel exposes
+  // `window.__REEL__.play`, call it now to (re)start the timeline from a
+  // clean state so frame 0 below lines up with the reel's actual t=0.
+  const replayed = await page.evaluate(() => {
+    if (window.__REEL__ && typeof window.__REEL__.play === 'function') {
+      window.__REEL__.play();
+      return true;
+    }
+    return false;
+  });
+  console.log(replayed
+    ? '[render] restarted reel timeline via window.__REEL__.play() to align with frame capture'
+    : '[render] no window.__REEL__.play() found - assuming the reel\'s own autoplay already lines up with frame 0');
+
   const frameMs = 1000 / opts.fps;
   const totalFrames = Math.max(1, Math.round((durationMs / 1000) * opts.fps));
   const framesDir = mkdtempSync(path.join(tmpdir(), 'gsr-render-'));
