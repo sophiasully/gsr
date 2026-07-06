@@ -38,18 +38,18 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
 }
 
 .kicker{
-  font-family:'Space Mono',monospace; font-weight:700; font-size:22px;
+  font-family:'Space Mono',monospace; font-weight:700; font-size:20px;
   letter-spacing:.28em; text-transform:uppercase; color:var(--green-bright);
-  margin-bottom:20px; align-self:flex-start; position:relative; z-index:1;
+  margin-bottom:12px; align-self:flex-start; position:relative; z-index:1;
 }
 .headline{
   font-family:'General Sans',system-ui,sans-serif; font-weight:700;
-  font-size:60px; line-height:1.15; letter-spacing:-.02em; color:var(--cream);
-  max-width:900px; align-self:flex-start; position:relative; z-index:1;
+  font-size:48px; line-height:1.15; letter-spacing:-.02em; color:var(--cream);
+  max-width:920px; align-self:flex-start; position:relative; z-index:1;
 }
 
-.diagram-wrap{ position:relative; width:1080px; height:810px; margin-top:40px; }
-.node{ position:absolute; display:flex; flex-direction:column; align-items:center; gap:12px; width:220px; }
+.diagram-wrap{ position:relative; width:1080px; height:960px; margin-top:10px; }
+.node{ position:absolute; display:flex; flex-direction:column; align-items:center; gap:10px; width:220px; }
 .node .ring{
   width:76px; height:76px; border-radius:50%;
   background:rgba(79,192,141,.08); border:2px solid var(--green-bright);
@@ -65,11 +65,12 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
 .node.rough .ring{ border-color:var(--muted); }
 .node.rough .ring svg{ color:var(--muted); }
 
-.node.done{ top:52px; left:430px; }
-.node.follow{ top:232px; left:430px; }
-.node.great{ top:432px; left:150px; }
-.node.rough{ top:432px; left:710px; }
-.node.reply{ top:622px; left:430px; }
+.node.customer{ top:52px; left:430px; }
+.node.service{ top:221px; left:430px; }
+.node.follow{ top:390px; left:430px; }
+.node.great{ top:584px; left:150px; }
+.node.rough{ top:584px; left:710px; }
+.node.reply{ top:768px; left:430px; }
 </style>
 </head>
 <body>
@@ -79,7 +80,7 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
     <span class="headline">You're already busy enough running the business.</span>
 
     <div class="diagram-wrap">
-      <svg viewBox="0 0 1080 810" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
+      <svg viewBox="0 0 1080 960" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
         <defs>
           <marker id="p-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M0 0L10 5L0 10z" fill="#4fc08d"/>
@@ -88,22 +89,27 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
             <path d="M0 0L10 5L0 10z" fill="#6f8a7e"/>
           </marker>
         </defs>
-        <path d="M540 201V222" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
-        <path d="M540 381V405" fill="none" stroke="#4fc08d" stroke-width="4"/>
-        <path d="M540 405H260" fill="none" stroke="#4fc08d" stroke-width="4"/>
-        <path d="M540 405H820" fill="none" stroke="#6f8a7e" stroke-width="4"/>
-        <path d="M260 405V422" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
-        <path d="M820 405V422" fill="none" stroke="#6f8a7e" stroke-width="4" marker-end="url(#p-arrow-muted)"/>
-        <path d="M260 581V601" fill="none" stroke="#4fc08d" stroke-width="4"/>
-        <path d="M820 581V601" fill="none" stroke="#4fc08d" stroke-width="4"/>
-        <path d="M260 601H540" fill="none" stroke="#4fc08d" stroke-width="4"/>
-        <path d="M820 601H540" fill="none" stroke="#4fc08d" stroke-width="4"/>
-        <path d="M540 601V612" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
+        <path d="M540 199V213" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
+        <path d="M540 368V382" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
+        <path d="M540 537V556" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M540 556H260" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M540 556H820" fill="none" stroke="#6f8a7e" stroke-width="4"/>
+        <path d="M260 556V576" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
+        <path d="M820 556V576" fill="none" stroke="#6f8a7e" stroke-width="4" marker-end="url(#p-arrow-muted)"/>
+        <path d="M260 731V746" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M820 731V746" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M260 746H540" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M820 746H540" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M540 746V760" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#p-arrow)"/>
       </svg>
 
-      <div class="node done">
+      <div class="node customer">
+        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg></div>
+        <span class="label">Customer<br>comes in</span>
+      </div>
+      <div class="node service">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
-        <span class="label">Business<br>gets done</span>
+        <span class="label">You provide<br>your service</span>
       </div>
       <div class="node follow filled">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 9 9 0 0 1-3.6-.8L3 21l1.8-5a8.3 8.3 0 0 1-1-4.1A8.4 8.4 0 0 1 12.6 3a8.3 8.3 0 0 1 8.4 8.5z"/></svg></div>
@@ -111,11 +117,11 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
       </div>
       <div class="node great">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.2.6-4.6 4.2 1.3 6.1-5.5-3.1-5.5 3.1 1.3-6.1-4.6-4.2 6.2-.6z"/></svg></div>
-        <span class="label">Posted<br>publicly</span>
+        <span class="label">Great reviews<br>go public</span>
       </div>
       <div class="node rough">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-        <span class="label">Sent<br>privately</span>
+        <span class="label">Any criticism<br>comes to you</span>
       </div>
       <div class="node reply filled">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.5 2 6 5.4 5.5c2-.3 3.8.7 4.9 2.2 1.1-1.5 2.9-2.5 4.9-2.2C18.6 6 19.7 9.5 18.5 12.5 16 16.65 12 21 12 21z"/></svg></div>
