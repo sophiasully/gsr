@@ -18,16 +18,22 @@
   src: url('./space-mono/SpaceMono-Bold.woff2') format('woff2');
 }
 
-/*
-General Sans is distributed exclusively by Fontshare and isn't mirrored on
-any CDN this workspace can reach, so it's still loaded live from Fontshare
-(see the <link> tag each reel keeps in its <head>) instead of from here.
+/* General Sans is distributed exclusively by Fontshare, so unlike Space
+   Mono it can't be vendored via a public package registry - the .woff2
+   files below have to come from a Fontshare account:
+   https://www.fontshare.com/fonts/general-sans (download the weight,
+   drop it at assets/fonts/general-sans/GeneralSans-<Weight>.woff2). Until
+   both files exist, these @font-face rules simply won't resolve and text
+   falls back to the browser's default sans-serif - same as an unreachable
+   CDN would, just without the network dependency. */
 
-To self-host it (recommended before doing unattended/offline renders):
-  1. Download the weights you use from https://www.fontshare.com/fonts/general-sans
-  2. Save them as assets/fonts/general-sans/GeneralSans-<Weight>.woff2
-  3. Uncomment and extend the block below for each weight
-  4. Remove the Fontshare <link> from the reel's <head>
+@font-face {
+  font-family: 'General Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./general-sans/GeneralSans-Medium.woff2') format('woff2');
+}
 
 @font-face {
   font-family: 'General Sans';
@@ -36,4 +42,3 @@ To self-host it (recommended before doing unattended/offline renders):
   font-display: swap;
   src: url('./general-sans/GeneralSans-Bold.woff2') format('woff2');
 }
-*/
