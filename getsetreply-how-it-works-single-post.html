@@ -24,7 +24,7 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
   overflow:hidden;
   display:flex; flex-direction:column;
   align-items:center;
-  padding:90px 80px;
+  padding:65px 80px;
 }
 .slide::before{
   content:""; position:absolute; pointer-events:none;
@@ -48,11 +48,11 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
   max-width:920px; align-self:flex-start; position:relative; z-index:1;
 }
 
-.diagram-wrap{ position:relative; width:1080px; height:1000px; margin-top:10px; }
+.diagram-wrap{ position:relative; width:1080px; height:1080px; margin-top:10px; }
 .autopilot{
-  position:absolute; top:935px; left:0; right:0; text-align:center;
+  position:absolute; top:920px; left:0; right:0; text-align:center;
   font-family:'General Sans',system-ui,sans-serif; font-weight:700;
-  font-size:40px; letter-spacing:-.01em; color:var(--cream);
+  font-size:36px; line-height:1.25; letter-spacing:-.01em; color:var(--cream);
 }
 .autopilot .accent{ color:var(--green-bright); }
 .node{ position:absolute; display:flex; flex-direction:column; align-items:center; gap:10px; width:220px; }
@@ -86,7 +86,7 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
     <span class="headline">You're already busy enough running the business.</span>
 
     <div class="diagram-wrap">
-      <svg viewBox="0 0 1080 1000" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
+      <svg viewBox="0 0 1080 1080" style="position:absolute; inset:0; width:100%; height:100%; overflow:visible;">
         <defs>
           <marker id="p-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M0 0L10 5L0 10z" fill="#4fc08d"/>
@@ -131,10 +131,10 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
       </div>
       <div class="node reply filled">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.5 2 6 5.4 5.5c2-.3 3.8.7 4.9 2.2 1.1-1.5 2.9-2.5 4.9-2.2C18.6 6 19.7 9.5 18.5 12.5 16 16.65 12 21 12 21z"/></svg></div>
-        <span class="label">You reply.<br>They return.</span>
+        <span class="label">We reply,<br>in your voice.</span>
       </div>
 
-      <span class="autopilot">Your reputation, <span class="accent">on autopilot.</span></span>
+      <span class="autopilot">You handle the day-to-day.<br><span class="accent">We handle your reputation.</span></span>
     </div>
   </div>
 

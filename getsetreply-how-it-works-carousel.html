@@ -76,11 +76,11 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
 }
 
 /* ---------- Slide 2: the cycle diagram ---------- */
-#s2 .diagram-wrap{ position:relative; width:1080px; height:1020px; margin-top:10px; }
+#s2 .diagram-wrap{ position:relative; width:1080px; height:1080px; margin-top:10px; }
 #s2 .autopilot{
-  position:absolute; top:940px; left:0; right:0; text-align:center;
+  position:absolute; top:930px; left:0; right:0; text-align:center;
   font-family:'General Sans',system-ui,sans-serif; font-weight:700;
-  font-size:44px; letter-spacing:-.01em; color:var(--cream);
+  font-size:40px; line-height:1.25; letter-spacing:-.01em; color:var(--cream);
 }
 #s2 .autopilot .accent{ color:var(--green-bright); }
 #s2 .node{ gap:10px; }
@@ -180,7 +180,7 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
   <div class="slide" id="s2">
     <span class="kicker">The cycle</span>
     <div class="diagram-wrap">
-      <svg class="lines" viewBox="0 0 1080 1020">
+      <svg class="lines" viewBox="0 0 1080 1080">
         <defs>
           <marker id="cycle-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M0 0L10 5L0 10z" fill="#4fc08d"/>
@@ -231,10 +231,10 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
       </div>
       <div class="node reply filled">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.5 2 6 5.4 5.5c2-.3 3.8.7 4.9 2.2 1.1-1.5 2.9-2.5 4.9-2.2C18.6 6 19.7 9.5 18.5 12.5 16 16.65 12 21 12 21z"/></svg></div>
-        <span class="label">You reply.<br>They return.</span>
+        <span class="label">We reply,<br>in your voice.</span>
       </div>
 
-      <span class="autopilot">Your reputation, <span class="accent">on autopilot.</span></span>
+      <span class="autopilot">You handle the day-to-day.<br><span class="accent">We handle your reputation.</span></span>
     </div>
   </div>
 
