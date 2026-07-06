@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetSetReply · How It Works Carousel</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{
+  --dark:#061614;
+  --cream:#f4faf6;
+  --green:#22a06b;
+  --green-bright:#4fc08d;
+  --muted:#6f8a7e;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ background:#111; font-family:'General Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0; }
+
+.slide{
+  position:relative;
+  width:1080px; height:1350px;
+  background:var(--dark);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:flex-start;
+  padding:100px 96px;
+}
+.slide::before{
+  content:""; position:absolute; pointer-events:none;
+  width:900px; height:900px; left:-280px; top:-320px;
+  background:radial-gradient(circle, rgba(79,192,141,.16) 0%, rgba(79,192,141,0) 62%);
+}
+.slide::after{
+  content:""; position:absolute; pointer-events:none;
+  width:840px; height:840px; right:-300px; bottom:-280px;
+  background:radial-gradient(circle, rgba(79,192,141,.12) 0%, rgba(79,192,141,0) 62%);
+}
+
+.kicker{
+  font-family:'Space Mono',monospace; font-weight:700; font-size:22px;
+  letter-spacing:.28em; text-transform:uppercase; color:var(--green-bright);
+  margin-bottom:36px;
+}
+.headline{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700;
+  font-size:86px; line-height:1.1; letter-spacing:-.02em; color:var(--cream);
+  max-width:840px; margin-bottom:32px;
+}
+.headline .accent{ color:var(--green-bright); }
+.sub{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:500;
+  font-size:42px; line-height:1.3; letter-spacing:-.01em; color:var(--cream);
+  max-width:800px;
+}
+.sub b{ color:var(--green-bright); font-weight:700; }
+
+.counter{
+  position:absolute; bottom:56px; left:96px;
+  font-family:'Space Mono',monospace; font-weight:700; font-size:20px;
+  letter-spacing:.14em; color:var(--muted);
+}
+.counter b{ color:var(--cream); }
+
+.swipe{
+  position:absolute; bottom:56px; right:96px;
+  font-family:'Space Mono',monospace; font-weight:700; font-size:20px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--green-bright);
+}
+
+/* ---------- Slide 6: brand close ---------- */
+#s6{ align-items:center; justify-content:center; text-align:center; }
+#s6 .logo{ display:flex; align-items:center; gap:18px; margin-bottom:36px; }
+#s6 .logo .plane{ width:56px; height:56px; color:var(--green-bright); }
+#s6 .logo .wordmark{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:64px;
+  letter-spacing:-.02em; color:var(--cream);
+}
+#s6 .logo .wordmark .set{ color:var(--green-bright); }
+#s6 .tagline{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:500; font-size:38px;
+  color:var(--cream); margin-bottom:26px; max-width:760px;
+}
+#s6 .url{
+  font-family:'Space Mono',monospace; font-weight:700; font-size:24px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--cream);
+}
+#s6 .url .dim{ color:var(--muted); }
+</style>
+</head>
+<body>
+
+  <div class="slide" id="s1">
+    <span class="kicker">The reality</span>
+    <span class="headline">Running the business is a full-time job.</span>
+    <span class="sub">Chasing reviews <b>shouldn't be a second one.</b></span>
+    <span class="counter"><b>01</b> / 06</span>
+    <span class="swipe">Swipe →</span>
+  </div>
+
+  <div class="slide" id="s2">
+    <span class="kicker">Step 1 — We ask</span>
+    <span class="headline">We reach out to your customers <span class="accent">for you.</span></span>
+    <span class="sub">By text, email, or a QR code right at checkout.</span>
+    <span class="counter"><b>02</b> / 06</span>
+    <span class="swipe">Swipe →</span>
+  </div>
+
+  <div class="slide" id="s3">
+    <span class="kicker">Step 2 — We protect</span>
+    <span class="headline">Happy customers go public. Rough ones come to <span class="accent">you</span> first.</span>
+    <span class="sub">Great experiences get guided to Google &amp; Yelp. Tough ones land privately in your inbox — before they're ever public.</span>
+    <span class="counter"><b>03</b> / 06</span>
+    <span class="swipe">Swipe →</span>
+  </div>
+
+  <div class="slide" id="s4">
+    <span class="kicker">Step 3 — We draft</span>
+    <span class="headline">Every review gets a reply, <span class="accent">written in your voice.</span></span>
+    <span class="sub">Professional, friendly, or calm and steady for the hard ones.</span>
+    <span class="counter"><b>04</b> / 06</span>
+    <span class="swipe">Swipe →</span>
+  </div>
+
+  <div class="slide" id="s5">
+    <span class="kicker">Step 4 — You send</span>
+    <span class="headline">You read it. Tweak it if you want. <span class="accent">Hit send.</span></span>
+    <span class="sub">Nothing goes out without you.</span>
+    <span class="counter"><b>05</b> / 06</span>
+    <span class="swipe">Swipe →</span>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="logo">
+      <svg class="plane" viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      <span class="wordmark">Get<span class="set">Set</span>Reply</span>
+    </div>
+    <span class="tagline">Requests sent automatically. Replies drafted for you. You stay in charge.</span>
+    <span class="url">getsetreply<span class="dim">.com</span></span>
+    <span class="counter"><b>06</b> / 06</span>
+  </div>
+
+</body>
+</html>
