@@ -76,23 +76,20 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
 }
 
 /* ---------- Slide 2: the cycle diagram ---------- */
-#s2 .diagram-wrap{ position:relative; width:1080px; height:1080px; margin-top:30px; }
-#s2 .node.job{ top:226px; left:90px; }
-#s2 .node.nail{ top:226px; left:430px; }
-#s2 .node.follow{ top:226px; left:770px; }
-#s2 .node.customer{ top:846px; left:90px; }
-#s2 .node.review{ top:846px; left:770px; }
+#s2 .diagram-wrap{ position:relative; width:1080px; height:1080px; margin-top:10px; }
+#s2 .node{ gap:14px; }
+#s2 .node .ring{ width:90px; height:90px; }
+#s2 .node .ring svg{ width:38px; height:38px; }
+#s2 .node .label{ font-size:26px; }
+#s2 .node.done{ top:115px; left:430px; }
+#s2 .node.follow{ top:348px; left:430px; }
+#s2 .node.great{ top:611px; left:150px; }
+#s2 .node.rough{ top:611px; left:710px; }
+#s2 .node.reply{ top:864px; left:430px; }
 .node.filled .ring{ background:var(--green-bright); border-color:var(--green-bright); }
 .node.filled .ring svg{ color:var(--dark); }
-#s2 .flywheel{
-  position:absolute; top:610px; left:390px; width:300px;
-  display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
-}
-#s2 .flywheel svg{ width:32px; height:32px; color:var(--green-bright); }
-#s2 .flywheel span{
-  font-family:'Space Mono',monospace; font-weight:700; font-size:20px;
-  letter-spacing:.05em; color:var(--green-bright); line-height:1.4;
-}
+.node.rough .ring{ border-color:var(--muted); }
+.node.rough .ring svg{ color:var(--muted); }
 
 /* ---------- Slide 3: outreach icon row ---------- */
 .icon-row{ display:flex; gap:70px; margin-top:70px; align-self:center; position:relative; z-index:1; }
@@ -181,42 +178,47 @@ body{ display:flex; flex-direction:column; align-items:center; gap:24px; padding
           <marker id="cycle-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M0 0L10 5L0 10z" fill="#4fc08d"/>
           </marker>
+          <marker id="cycle-arrow-muted" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0 0L10 5L0 10z" fill="#6f8a7e"/>
+          </marker>
         </defs>
-        <!-- top row: job -> nail -> follow -->
-        <path d="M254 280H486" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
-        <path d="M594 280H826" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
-        <!-- right side: follow -> review -->
-        <path d="M880 440V846" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
-        <!-- bottom row: review -> customer -->
-        <path d="M826 900H254" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
-        <!-- left side: customer -> job -->
-        <path d="M200 846V440" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
+        <!-- done -> follow (drawn only in the clear gap between label and next ring) -->
+        <path d="M540 297V333" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
+        <!-- follow -> fork point -->
+        <path d="M540 530V563" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M540 563H260" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M540 563H820" fill="none" stroke="#6f8a7e" stroke-width="4"/>
+        <!-- fork point -> great / rough -->
+        <path d="M260 563V596" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
+        <path d="M820 563V596" fill="none" stroke="#6f8a7e" stroke-width="4" marker-end="url(#cycle-arrow-muted)"/>
+        <!-- great / rough -> merge point -->
+        <path d="M260 793V821" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M820 793V821" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M260 821H540" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <path d="M820 821H540" fill="none" stroke="#4fc08d" stroke-width="4"/>
+        <!-- merge point -> reply -->
+        <path d="M540 821V849" fill="none" stroke="#4fc08d" stroke-width="4" marker-end="url(#cycle-arrow)"/>
       </svg>
 
-      <div class="node job">
-        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l1.5 4-2 1.5c1 2.5 3 4.5 5.5 5.5L14.5 13l4 1.5v3a2 2 0 0 1-2 2A14 14 0 0 1 3 5.5 2 2 0 0 1 5 4z"/></svg></div>
-        <span class="label">Job<br>comes in</span>
-      </div>
-      <div class="node nail">
+      <div class="node done">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
-        <span class="label">You<br>nail it</span>
+        <span class="label">Business<br>gets done</span>
       </div>
       <div class="node follow filled">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 9 9 0 0 1-3.6-.8L3 21l1.8-5a8.3 8.3 0 0 1-1-4.1A8.4 8.4 0 0 1 12.6 3a8.3 8.3 0 0 1 8.4 8.5z"/></svg></div>
-        <span class="label">GetSetReply<br>follows up</span>
+        <span class="label">We<br>follow up</span>
       </div>
-      <div class="node customer">
-        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v2"/><path d="M19 8h4M21 6v4"/></svg></div>
-        <span class="label">Next<br>customer</span>
-      </div>
-      <div class="node review filled">
+      <div class="node great">
         <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.2.6-4.6 4.2 1.3 6.1-5.5-3.1-5.5 3.1 1.3-6.1-4.6-4.2 6.2-.6z"/></svg></div>
-        <span class="label">Client posts<br>a review</span>
+        <span class="label">Posted<br>publicly</span>
       </div>
-
-      <div class="flywheel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg>
-        <span>More reviews.<br>More customers.</span>
+      <div class="node rough">
+        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <span class="label">Sent<br>privately</span>
+      </div>
+      <div class="node reply filled">
+        <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.5 2 6 5.4 5.5c2-.3 3.8.7 4.9 2.2 1.1-1.5 2.9-2.5 4.9-2.2C18.6 6 19.7 9.5 18.5 12.5 16 16.65 12 21 12 21z"/></svg></div>
+        <span class="label">You reply.<br>They return.</span>
       </div>
     </div>
   </div>
