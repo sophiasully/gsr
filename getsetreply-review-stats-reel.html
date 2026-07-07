@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetSetReply · Review Stats Reel</title>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{
+  --dark:#061614;
+  --cream:#f4faf6;
+  --green:#22a06b;
+  --green-bright:#4fc08d;
+  --muted:#6f8a7e;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ background:#111; height:100%; display:flex; align-items:center; justify-content:center; font-family:'General Sans',system-ui,sans-serif; }
+
+.stage{
+  position:relative;
+  width:405px; height:720px;
+  background:var(--dark);
+  overflow:hidden;
+  border-radius:6px;
+  -webkit-font-smoothing:antialiased;
+}
+.stage::before{
+  content:""; position:absolute; pointer-events:none;
+  width:560px; height:560px; left:-160px; top:-180px;
+  background:radial-gradient(circle, rgba(79,192,141,.18) 0%, rgba(79,192,141,0) 62%);
+}
+.stage::after{
+  content:""; position:absolute; pointer-events:none;
+  width:520px; height:520px; right:-180px; bottom:-160px;
+  background:radial-gradient(circle, rgba(79,192,141,.13) 0%, rgba(79,192,141,0) 62%);
+}
+
+.scene{ position:absolute; inset:0; opacity:0; visibility:hidden; }
+.scene.on{ opacity:1; visibility:visible; }
+
+/* ---------- Scene 1: Reviews matter. Here's why. ---------- */
+#s1{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:0 30px; text-align:center; }
+#s1 .line1, #s1 .line2{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:48px;
+  letter-spacing:-.025em; line-height:1.05; color:var(--cream);
+  opacity:0;
+}
+#s1 .line2{ color:var(--green-bright); }
+
+/* ---------- Scenes 2-4: stat cards ---------- */
+.stat{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 34px; text-align:center; gap:22px; }
+.stat .kick{
+  font-family:'Space Mono',monospace; font-weight:700; font-size:13px;
+  letter-spacing:.28em; text-transform:uppercase; color:var(--muted);
+  opacity:0; transform:translateY(14px);
+}
+.stat .num{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:132px;
+  letter-spacing:-.04em; line-height:1; color:var(--green-bright);
+  opacity:0; transform:scale(.75);
+}
+.stat .desc{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:28px;
+  letter-spacing:-.02em; line-height:1.25; color:var(--cream);
+  opacity:0; transform:translateY(18px); max-width:320px;
+}
+
+/* ---------- Scene 5: logo + airplane finale ---------- */
+#s5{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; }
+#s5 .tagline{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:30px;
+  letter-spacing:-.02em; line-height:1.2; color:var(--cream);
+  text-align:center; padding:0 40px;
+  opacity:0; transform:translateY(18px);
+}
+#s5 .logo{
+  display:flex; align-items:center; gap:14px;
+  opacity:0; transform:scale(.7);
+}
+#s5 .logo .plane{
+  width:34px; height:34px; color:var(--green-bright);
+  transform:rotate(0deg);
+}
+#s5 .logo .wordmark{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:36px;
+  letter-spacing:-.02em; color:var(--cream);
+}
+#s5 .logo .wordmark .set{ color:var(--green-bright); }
+#s5 .url{
+  font-family:'Space Mono',monospace; font-weight:700; font-size:14px;
+  letter-spacing:.24em; text-transform:uppercase; color:var(--cream);
+  opacity:0;
+}
+#s5 .url .dim{ color:var(--muted); }
+
+
+.scene#s1.on .line1{ animation:fadeUp .8s var(--ease-out) .35s forwards; }
+.scene#s1.on .line2{ animation:fadeUp .8s var(--ease-out) .95s forwards; }
+
+.scene#s2.on .kick, .scene#s3.on .kick, .scene#s4.on .kick{ animation:fadeUp .6s var(--ease-out) .15s forwards; }
+.scene#s2.on .num, .scene#s3.on .num, .scene#s4.on .num{ animation:popIn .7s var(--ease-out) .45s forwards; }
+.scene#s2.on .desc, .scene#s3.on .desc, .scene#s4.on .desc{ animation:fadeUp .7s var(--ease-out) 1.15s forwards; }
+
+.scene#s5.on .tagline{ animation:fadeUp .8s var(--ease-out) .2s forwards; }
+.scene#s5.on .logo{ animation:wrapIn .6s var(--ease-out) 1.1s forwards; }
+.scene#s5.on .logo .plane{ animation:spin360 .6s var(--ease-out) 1.1s forwards; }
+.scene#s5.on .url{ animation:fadeUp 0.8s var(--ease-out) 1.9s forwards; }
+
+@keyframes wrapIn{ from{ opacity:0; transform:scale(.7); } to{ opacity:1; transform:scale(1); } }
+@keyframes spin360{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+@keyframes fadeUp{ to{ opacity:1; transform:translateY(0); } }
+@keyframes popIn{ to{ opacity:1; transform:scale(1); } }
+
+.replay{
+  position:absolute; bottom:14px; right:14px; z-index:50;
+  font-family:'Space Mono',monospace; font-weight:700; font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--dark);
+  background:var(--green-bright); border:none; border-radius:20px;
+  padding:8px 16px; cursor:pointer; opacity:.85; transition:opacity .2s;
+}
+.replay:hover{ opacity:1; }
+/* tools/render marks <html> with this class before capture, so the replay
+   button (only meaningful for interactive preview in a browser) never shows
+   up in the exported video. */
+.gsr-render .replay{ display:none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <div class="scene" id="s1">
+    <span class="line1">Reviews matter.</span>
+    <span class="line2">Here's why.</span>
+  </div>
+
+  <div class="scene stat" id="s2">
+    <span class="kick">Before they buy</span>
+    <span class="num">98%</span>
+    <span class="desc">of consumers read reviews before choosing a local business</span>
+  </div>
+
+  <div class="scene stat" id="s3">
+    <span class="kick">The bar is rising</span>
+    <span class="num">70%</span>
+    <span class="desc">won't use a business rated below 4 stars</span>
+  </div>
+
+  <div class="scene stat" id="s4">
+    <span class="kick">Quantity counts</span>
+    <span class="num">88%</span>
+    <span class="desc">say the number of reviews changes how much they trust that rating</span>
+  </div>
+
+  <div class="scene" id="s5">
+    <span class="tagline">Every review is a chance. Don't drop it.</span>
+    <div class="logo">
+      <svg class="plane" viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      <span class="wordmark">Get<span class="set">Set</span>Reply</span>
+    </div>
+    <div class="url">getsetreply<span class="dim">.com</span></div>
+  </div>
+
+  <button class="replay" id="replay">&#8635; Replay</button>
+</div>
+
+<script>
+const scenes = [
+  { el: document.getElementById('s1'), dur: 2600 },
+  { el: document.getElementById('s2'), dur: 3200 },
+  { el: document.getElementById('s3'), dur: 3200 },
+  { el: document.getElementById('s4'), dur: 3200 },
+  { el: document.getElementById('s5'), dur: 4600 },
+];
+let timers = [];
+function clearTimers(){ timers.forEach(t=>clearTimeout(t)); timers = []; }
+function play(){
+  window.__REEL__.playStartedAt = performance.now();
+  clearTimers();
+  scenes.forEach(s=> s.el.classList.remove('on'));
+  let t = 0;
+  scenes.forEach((s)=>{
+    timers.push(setTimeout(()=>{
+      scenes.forEach(x=> x.el.classList.remove('on'));
+      s.el.classList.add('on');
+    }, t));
+    t += s.dur;
+  });
+}
+document.getElementById('replay').addEventListener('click', play);
+window.addEventListener('load', ()=> setTimeout(play, 300));
+
+// Render-pipeline convention (see tools/render): durationMs is how long
+// playback runs once started. playStartedAt is set by play() itself (in
+// performance.now() terms) so the renderer can tell how far into the
+// timeline autoplay already got while network/fonts were settling, and
+// capture only the remaining duration instead of assuming frame 0 is t=0.
+window.__REEL__ = {
+  durationMs: 300 + scenes.reduce((t, s) => t + s.dur, 0),
+  startDelayMs: 300,
+  playStartedAt: null,
+};
+</script>
+</body>
+</html>
