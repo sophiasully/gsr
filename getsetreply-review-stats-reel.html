@@ -110,6 +110,45 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 }
 #s5 .url .dim{ color:var(--muted); }
 
+/* ---------- Closing concept A: the cycle, as an actual loop ---------- */
+#s5-cycle{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#s5-cycle .cycle{ position:relative; width:260px; height:300px; }
+#s5-cycle .cycle-label{
+  position:absolute; left:0; right:0; text-align:center;
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:27px;
+  letter-spacing:-.02em; line-height:1.15; color:var(--cream);
+}
+#s5-cycle .cycle-label.top{ top:0; }
+#s5-cycle .cycle-label.bottom{ bottom:0; color:var(--green-bright); }
+#s5-cycle .cycle-svg{ position:absolute; inset:0; }
+#s5-cycle .logo-mini{
+  display:flex; align-items:center; gap:9px; margin-top:38px;
+}
+#s5-cycle .logo-mini .plane{ width:20px; height:20px; color:var(--green-bright); }
+#s5-cycle .logo-mini .wordmark{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:20px;
+  letter-spacing:-.02em; color:var(--cream);
+}
+#s5-cycle .logo-mini .wordmark .set{ color:var(--green-bright); }
+
+/* ---------- Closing concept B: quiet statement, brand as a footnote ---------- */
+#s5-quiet{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#s5-quiet .tagline-quiet{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:34px;
+  letter-spacing:-.02em; line-height:1.25; color:var(--cream); text-align:center;
+  padding:0 36px;
+}
+#s5-quiet .tagline-quiet .accent{ color:var(--green-bright); }
+#s5-quiet .logo-mini{
+  display:flex; align-items:center; gap:8px; margin-top:44px; opacity:.8;
+}
+#s5-quiet .logo-mini .plane{ width:17px; height:17px; color:var(--green-bright); }
+#s5-quiet .logo-mini .wordmark{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:17px;
+  letter-spacing:-.02em; color:var(--cream);
+}
+#s5-quiet .logo-mini .wordmark .set{ color:var(--green-bright); }
+
 
 /* Each piece of info within a scene lands, holds, then the next follows a
    clear half-second beat later (not simultaneously) - a deliberate rhythm
@@ -189,6 +228,38 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
       <span class="wordmark">Get<span class="set">Set</span>Reply</span>
     </div>
     <div class="url">getsetreply<span class="dim">.com</span></div>
+  </div>
+
+  <!-- Closing concept previews below (s5-cycle, s5-quiet) are not part of
+       the reel's timeline/scenes array - they're inert unless a script
+       manually toggles .on, purely so alternatives can be screenshotted
+       for comparison against #s5 without touching actual playback. -->
+  <div class="scene" id="s5-cycle">
+    <div class="cycle">
+      <span class="cycle-label top">More reviews.</span>
+      <svg class="cycle-svg" viewBox="0 0 260 300">
+        <defs>
+          <marker id="cycleArrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#4fc08d"/>
+          </marker>
+        </defs>
+        <path d="M130,65 A85,85 0 0 1 130,235" fill="none" stroke="#4fc08d" stroke-width="3" marker-end="url(#cycleArrow)"/>
+        <path d="M130,235 A85,85 0 0 1 130,65" fill="none" stroke="#2f6b52" stroke-width="3" marker-end="url(#cycleArrow)"/>
+      </svg>
+      <span class="cycle-label bottom">More customers.</span>
+    </div>
+    <div class="logo-mini">
+      <svg class="plane" viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      <span class="wordmark">Get<span class="set">Set</span>Reply</span>
+    </div>
+  </div>
+
+  <div class="scene" id="s5-quiet">
+    <span class="tagline-quiet">More reviews. More customers.<br><span class="accent">That's the cycle.</span></span>
+    <div class="logo-mini">
+      <svg class="plane" viewBox="0 0 24 24" fill="currentColor"><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      <span class="wordmark">Get<span class="set">Set</span>Reply</span>
+    </div>
   </div>
 
   <button class="replay" id="replay">&#8635; Replay</button>
