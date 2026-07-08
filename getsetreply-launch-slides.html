@@ -52,18 +52,56 @@ html,body{ background:#111; font-family:'General Sans',system-ui,sans-serif; }
 }
 #slide-1 .brandname .set{ color:var(--green-bright); }
 
-/* ---------- Slide 2: word stack ---------- */
-#slide-2 .stack{ display:flex; flex-direction:column; align-items:center; gap:8px; }
-#slide-2 .kick{
+/* ---------- Slide 2: stat grid ---------- */
+#slide-2, #slide-2b{ padding:0 28px; }
+.kick{
   font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:44px;
   letter-spacing:-.03em; line-height:1.02; color:var(--green);
-  margin-bottom:20px;
+  margin-bottom:28px;
 }
-#slide-2 .word{
-  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:44px;
-  letter-spacing:-.03em; line-height:1.02; color:var(--cream);
+.tagline{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:30px;
+  letter-spacing:-.02em; line-height:1.05; color:var(--cream); text-align:center;
+  margin-top:32px;
 }
-#slide-2 .word.auto{ color:var(--green-bright); }
+.tagline .accent{ color:var(--green-bright); }
+
+.stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; }
+.stat{
+  background:rgba(79,192,141,.08); border:1px solid rgba(79,192,141,.22);
+  border-radius:16px; padding:26px 12px; text-align:center;
+}
+.stat-value{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:40px;
+  letter-spacing:-.02em; line-height:1; color:var(--cream);
+}
+.stat-value .unit{ font-size:.6em; margin-left:2px; }
+.stat-value.accent{ color:var(--green-bright); }
+.stat-label{
+  margin-top:10px; font-family:'Space Mono',monospace; font-size:11px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+}
+
+/* ---------- Slide 2b: hero stat + supporting row ---------- */
+.hero-stat{ text-align:center; }
+.hero-value{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:104px;
+  letter-spacing:-.03em; line-height:1; color:var(--green-bright);
+}
+.hero-label{
+  margin-top:10px; font-family:'Space Mono',monospace; font-size:13px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.mini-row{ display:flex; gap:10px; width:100%; margin-top:40px; }
+.mini{ flex:1; text-align:center; }
+.mini-value{
+  font-family:'General Sans',system-ui,sans-serif; font-weight:700; font-size:28px;
+  letter-spacing:-.02em; color:var(--cream);
+}
+.mini-label{
+  margin-top:8px; font-family:'Space Mono',monospace; font-size:9px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+}
 
 /* ---------- Slide 3: logo + airplane finale ---------- */
 #slide-3{ gap:30px; }
@@ -89,14 +127,52 @@ html,body{ background:#111; font-family:'General Sans',system-ui,sans-serif; }
     <span class="brandname">Get<span class="set">Set</span>Reply.</span>
   </div>
 
+  <!-- Placeholder numbers below - swap in GetSetReply's real stats before shipping. -->
   <div class="stage" id="slide-2" data-slide="2">
     <span class="kick">Reviews</span>
-    <div class="stack">
-      <span class="word">Requested.</span>
-      <span class="word">Answered.</span>
-      <span class="word">Handled.</span>
-      <span class="word auto">Automatically.</span>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-value">4.9<span class="unit">★</span></div>
+        <div class="stat-label">Average rating</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value accent">12.4K</div>
+        <div class="stat-label">Reviews answered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value accent">98%</div>
+        <div class="stat-label">Response rate</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">&lt;2h</div>
+        <div class="stat-label">Avg. reply time</div>
+      </div>
     </div>
+    <div class="tagline">Handled <span class="accent">automatically.</span></div>
+  </div>
+
+  <!-- Placeholder numbers below - swap in GetSetReply's real stats before shipping. -->
+  <div class="stage" id="slide-2b" data-slide="2b">
+    <span class="kick">Reviews</span>
+    <div class="hero-stat">
+      <div class="hero-value">98%</div>
+      <div class="hero-label">Response rate</div>
+    </div>
+    <div class="mini-row">
+      <div class="mini">
+        <div class="mini-value">4.9★</div>
+        <div class="mini-label">Avg rating</div>
+      </div>
+      <div class="mini">
+        <div class="mini-value">12.4K</div>
+        <div class="mini-label">Answered</div>
+      </div>
+      <div class="mini">
+        <div class="mini-value">&lt;2h</div>
+        <div class="mini-label">Reply time</div>
+      </div>
+    </div>
+    <div class="tagline">Handled <span class="accent">automatically.</span></div>
   </div>
 
   <div class="stage" id="slide-3" data-slide="3">

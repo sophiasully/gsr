@@ -8,15 +8,19 @@
 //   node tools/render/slides.mjs <input.html> [options]
 //
 // Options:
-//   --out-dir <dir>      Output directory (default: out)
+//   --out-dir <dir>       Output directory (default: out)
 //   --width <px>          Output width in physical pixels (default: 1080)
 //   --height <px>         Output height in physical pixels (default: 1920)
 //   --stage-width <px>    Source CSS width of each .stage (default: 405)
 //   --stage-height <px>   Source CSS height of each .stage (default: 720)
+//   --supersample <n>     Capture at N x the output resolution and downsample
+//                         with Lanczos (default: 2) - sharper text/gradient
+//                         edges than rendering 1:1. Set to 1 to disable.
 
 import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
 import { parseArgs } from 'node:util';
-import { mkdirSync, existsSync } from 'node:fs';
+import { mkdirSync, existsSync, renameSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
@@ -30,6 +34,7 @@ function parseCliArgs(argv) {
       height: { type: 'string', default: '1920' },
       'stage-width': { type: 'string', default: '405' },
       'stage-height': { type: 'string', default: '720' },
+      supersample: { type: 'string', default: '2' },
     },
   });
 
@@ -44,7 +49,30 @@ function parseCliArgs(argv) {
     height: Number(values.height),
     stageWidth: Number(values['stage-width']),
     stageHeight: Number(values['stage-height']),
+    supersample: Number(values.supersample),
   };
+}
+
+async function resolveFfmpegPath() {
+  if (process.env.FFMPEG_PATH) return process.env.FFMPEG_PATH;
+  try {
+    const mod = await import('ffmpeg-static');
+    if (mod.default) return mod.default;
+  } catch {
+    // fall through to PATH lookup
+  }
+  return 'ffmpeg';
+}
+
+function runFfmpeg(ffmpegPath, args) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'inherit', 'inherit'] });
+    proc.on('error', reject);
+    proc.on('exit', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`ffmpeg exited with code ${code}`));
+    });
+  });
 }
 
 async function main() {
@@ -58,8 +86,8 @@ async function main() {
   const outDir = path.resolve(opts.outDir);
   mkdirSync(outDir, { recursive: true });
 
-  const scale = opts.width / opts.stageWidth;
-  const expectedHeight = Math.round(opts.stageHeight * scale);
+  const scale = (opts.width / opts.stageWidth) * opts.supersample;
+  const expectedHeight = Math.round(opts.stageHeight * (opts.width / opts.stageWidth));
   if (Math.abs(expectedHeight - opts.height) > 1) {
     console.warn(
       `[slides] warning: --width/--height aspect ratio (${opts.width}x${opts.height}) doesn't match ` +
@@ -67,7 +95,10 @@ async function main() {
     );
   }
 
-  console.log(`[slides] launching Chromium (capturing each slide at ${opts.width}x${opts.height}, ${scale.toFixed(3)}x scale)`);
+  console.log(
+    `[slides] launching Chromium (capturing each slide at ${opts.width}x${opts.height} output` +
+    `${opts.supersample > 1 ? ` via ${opts.supersample}x supersample` : ''}, ${scale.toFixed(3)}x scale)`
+  );
   const browser = await chromium.launch();
   const context = await browser.newContext({
     viewport: { width: opts.stageWidth * 4, height: opts.stageHeight * 4 },
@@ -98,11 +129,24 @@ async function main() {
   }
   console.log(`[slides] found ${slides.length} slide(s)`);
 
+  const ffmpegPath = opts.supersample > 1 ? await resolveFfmpegPath() : null;
   const outPaths = [];
   for (const slide of slides) {
     const slideId = await slide.getAttribute('data-slide');
     const outPath = path.join(outDir, `${baseName}-${slideId}.png`);
-    await slide.screenshot({ path: outPath });
+    if (opts.supersample > 1) {
+      const rawPath = path.join(outDir, `${baseName}-${slideId}.raw.png`);
+      await slide.screenshot({ path: rawPath });
+      await runFfmpeg(ffmpegPath, [
+        '-y', '-i', rawPath,
+        '-vf', `scale=${opts.width}:${opts.height}:flags=lanczos`,
+        '-update', '1', '-frames:v', '1',
+        outPath,
+      ]);
+      rmSync(rawPath);
+    } else {
+      await slide.screenshot({ path: outPath });
+    }
     outPaths.push(outPath);
     console.log(`[slides] wrote ${outPath}`);
   }
