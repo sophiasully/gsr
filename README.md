@@ -1,16 +1,17 @@
 # GetSetReply Workspace
 
-Creative workspace for GetSetReply video assets: self-contained HTML "reels"
-(short animated vertical spots) plus a renderer that turns them into
-broadcast-quality MP4/MOV files.
+Creative workspace for GetSetReply assets: self-contained HTML "reels" (short
+animated vertical spots) rendered to broadcast-quality MP4/MOV, and static
+HTML "slide decks" rendered to individual PNGs (carousel posts, etc).
 
 ## Layout
 
 ```
-*.html                 Reels. Each is a single self-contained page.
+*.html                  Reels and slide decks. Each is a single self-contained page.
 assets/fonts/           Self-hosted webfonts + fonts.css
-tools/render/render.mjs The HTML -> video renderer
-out/                    Rendered videos (gitignored)
+tools/render/render.mjs The HTML -> video renderer (reels)
+tools/render/slides.mjs The HTML -> PNG renderer (slide decks)
+out/                    Rendered output (gitignored)
 ```
 
 ## Authoring a reel
@@ -87,3 +88,33 @@ and handed to ffmpeg for final encode.
 - `ffmpeg` reachable one of three ways: the `ffmpeg-static` npm package
   (installed automatically, no system install needed), a system `ffmpeg` on
   `PATH`, or an explicit path via `FFMPEG_PATH`.
+
+## Authoring a slide deck
+
+A slide deck is a plain HTML file with one `.stage[data-slide="N"]` element
+per slide (same fixed CSS px size/branding convention as reels), laid out
+however's convenient for browser preview - `getsetreply-launch-slides.html`
+just flexes them in a gallery. There's no timeline: slides are static, so
+skip the `.scene`/animation/`window.__REEL__` machinery entirely.
+
+```
+npm install
+npm run slides -- <deck.html> [options]
+```
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--out-dir` | `out` | Output directory |
+| `--width` / `--height` | `1080` / `1920` | Output resolution (px), per slide |
+| `--stage-width` / `--stage-height` | `405` / `720` | Source CSS size of each `.stage` |
+
+Writes one `<deck-name>-<N>.png` per `data-slide="N"` element found.
+
+Unlike `render.mjs`, this is a plain `page.screenshot()` per element with no
+virtual-time clock involved. `render.mjs` needs that clock to pace a timeline
+frame-by-frame, but it leans on `Emulation.setVirtualTimePolicy`, an
+experimental Chrome DevTools Protocol feature that can hang `captureScreenshot`
+outright in some timing windows (see upstream reports like
+[chrome-headless-render-pdf#29](https://github.com/Szpadel/chrome-headless-render-pdf/issues/29)).
+Slides have no timeline to pace, so that whole mechanism - and its fragility
+- is simply absent here.
