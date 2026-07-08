@@ -24,10 +24,12 @@
   --spring-gentle:linear(0, 0.101, 0.319, 0.558, 0.765, 0.916, 1.011, 1.059, 1.073, 1.067, 1.052, 1.034, 1.019, 1.007, 1, 0.996, 0.995, 0.995, 0.996, 0.997, 1);
   --spring-snappy:linear(0, 0.102, 0.322, 0.564, 0.775, 0.929, 1.025, 1.072, 1.083, 1.074, 1.056, 1.036, 1.018, 1.006, 0.998, 0.994, 0.993, 0.994, 0.995, 0.997, 1);
 }
-@media (prefers-reduced-motion: reduce){
-  .scene *{ transform:none !important; }
-  .scene{ transition-duration:.2s !important; }
-}
+/* No @media (prefers-reduced-motion: reduce) override here: this file is a
+   fixed-timeline reel captured to video by tools/render (not viewed live by
+   end users), and adding that block - even matching nothing in this
+   browser - made tools/render's page.screenshot() hang indefinitely under
+   the renderer's virtual-time clock. Confirmed by bisection against an
+   unmodified copy of this file. */
 *{ margin:0; padding:0; box-sizing:border-box; }
 html,body{ background:#111; height:100%; display:flex; align-items:center; justify-content:center; font-family:'General Sans',system-ui,sans-serif; }
 
