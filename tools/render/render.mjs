@@ -304,14 +304,29 @@ async function main() {
   // settle point, needing a different-sized jump to reach the same target.
   let currentAbsMs = alreadyElapsedMs;
 
-  // Jumps this page instance's virtual clock straight to targetAbsMs (a single
-  // big advance, not frameMs-sized steps - the fresh page's clock starts over
-  // after a relaunch, so it needs a differently-sized jump than the main loop).
+  // Jumps this page instance's virtual clock to targetAbsMs. After a relaunch
+  // this can be a large advance (the fresh page's clock starts over from its
+  // own settle point, potentially seconds behind targetAbsMs) - advancing
+  // that in one single CDP call resolves every CSS animation/transition
+  // scheduled in between all at once, before our animationstart/transitionstart
+  // listeners get a chance to pause+track each one at its true start. By the
+  // time they're tracked, currentTime already reflects wherever the jump
+  // landed - often at or past the end of short animations - so they get
+  // committed via seekAndCommitAnimations's forwards-fill handling as already
+  // finished. That reads as every mid-flight animation snapping to its end
+  // state instantly, which is exactly the artifact seen at scene transitions
+  // that happen to fall near a relaunch. Chunking the advance into steps no
+  // bigger than one output frame and resyncing tracked animations after each
+  // chunk (same as the main per-frame loop does) gives every animation a
+  // chance to be tracked close to its real start instead of near its end.
   async function seekTo(targetAbsMs) {
-    const deltaMs = targetAbsMs - currentAbsMs;
-    if (deltaMs > 0) await advanceVirtualTime(client, 'advance', deltaMs);
+    while (currentAbsMs < targetAbsMs) {
+      const step = Math.min(frameMs, targetAbsMs - currentAbsMs);
+      await advanceVirtualTime(client, 'advance', step);
+      currentAbsMs += step;
+      await seekAndCommitAnimations();
+    }
     currentAbsMs = targetAbsMs;
-    await seekAndCommitAnimations();
   }
 
   let relaunches = 0;

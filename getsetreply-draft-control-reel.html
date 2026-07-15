@@ -53,6 +53,7 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 .scene{
   position:absolute; inset:0; opacity:0; visibility:hidden; transform:translateY(56px);
   transition:opacity 1.1s var(--ease), transform 1.1s var(--ease), visibility 0s linear 1.1s;
+  will-change:opacity, transform;
 }
 .scene.on{
   opacity:1; visibility:visible; transform:translateY(0);
@@ -72,8 +73,8 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 /* ---------- shared: review card ---------- */
 .review-card{
   width:340px; background:var(--card-light); border-radius:18px;
-  padding:22px 24px; box-shadow:0 18px 40px rgba(28,19,12,.14);
-  opacity:0; transform:scale(.92) translateY(10px);
+  padding:22px 24px; box-shadow:0 8px 16px rgba(28,19,12,.12);
+  opacity:0; transform:scale(.92) translateY(10px); will-change:opacity, transform;
 }
 .review-card .row1{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 .review-card .avatar{
@@ -99,8 +100,8 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 /* ---------- shared: dark app card ---------- */
 .app-card{
   width:346px; background:var(--card-dark); border-radius:20px; padding:22px 22px 20px;
-  box-shadow:0 24px 48px rgba(23,18,13,.35);
-  opacity:0; transform:scale(.94) translateY(12px);
+  box-shadow:0 10px 20px rgba(23,18,13,.3);
+  opacity:0; transform:scale(.94) translateY(12px); will-change:opacity, transform;
 }
 .app-card .head{ display:flex; align-items:flex-start; justify-content:space-between; opacity:0; transform:translateY(10px); }
 .app-card .head-left{ display:flex; align-items:center; gap:10px; }
@@ -189,15 +190,19 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
 }
 
 /* ---------- animation timelines per scene ----------
-   Gated on .reveal rather than .on: the scene's own slide-in transition and
-   a scene's ~7 staggered child animations all becoming eligible to start in
-   the exact same synchronous style recalc overloads render.mjs's per-frame
-   virtual-time animation capture (confirmed by isolating the two - the
-   container transition alone renders as a smooth multi-frame slide; adding
-   the children back makes the whole scene, container included, appear to
-   snap in on a single frame). play() adds .on immediately for the slide,
-   then .reveal one tick later so the children's animations start in a
-   separate recalc instead of piling on top of the container transition. */
+   Gated on .reveal rather than .on so the scene's own slide-in transition
+   and its ~7 staggered child animations don't all become eligible to start
+   in the same synchronous recalc: .on (added immediately) drives only the
+   slide; .reveal (added ~120ms later) gates the children as one group.
+   This does NOT fix render.mjs's periodic page.screenshot() stalls (see
+   tools/render/render.mjs's seekTo comment) - those recur at essentially
+   the same frame numbers regardless of this reel's animation structure or
+   even its fonts, so they're a real-wall-clock-tied fragility of Chrome's
+   virtual-time emulation, not something this file's CSS can avoid. Kept
+   this batching anyway since splitting further (one .go class per child,
+   individually timed) measurably made the stall MORE frequent (17
+   relaunches/render vs ~5-7 batched) - fewer distinct animation-start
+   events overall is still the better side to be on. */
 .scene#s1.reveal .review-card{ animation:cardIn .7s var(--ease-out) .3s forwards; }
 .scene#s1.reveal .headline .l1{ animation:fadeUp .8s var(--ease-out) 1.7s forwards; }
 .scene#s1.reveal .headline .l2{ animation:fadeUp .8s var(--ease-out) 2.5s forwards; }
