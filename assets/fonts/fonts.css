@@ -18,6 +18,34 @@
   src: url('./space-mono/SpaceMono-Bold.woff2') format('woff2');
 }
 
+/* Variable fonts: Google serves the same file across the weights requested
+   here (Chromium reads the font's own fvar axis and interpolates), so one
+   file + a font-weight range covers regular through bold. Used by the
+   draft-control reel's cream/serif visual system. */
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./lora/Lora-Variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./lora/Lora-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('./inter/Inter-Variable.woff2') format('woff2');
+}
+
 /*
 General Sans is distributed exclusively by Fontshare and isn't mirrored on
 any CDN this workspace can reach, so it's still loaded live from Fontshare
