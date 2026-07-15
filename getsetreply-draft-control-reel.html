@@ -40,12 +40,22 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
   -webkit-font-smoothing:antialiased;
 }
 
+/* Scenes push into frame like a slide/story transition rather than a hard
+   cut: the idle (not-yet-shown / just-finished) position sits just below
+   the frame, so a scene rises up into place on entry and eases back down
+   out of place on exit - a single shared idle transform, same two-state
+   toggle (.scene / .scene.on) as the rest of this workspace's reels, just
+   swapping the old scale-pulse for a directional translateY. A three-state
+   (add a transient "leaving" class) version was tried for a true opposing
+   push, but it produced a one-frame blank gap under render.mjs's
+   virtual-time capture at the scene boundary - not worth the risk for a
+   subtler directional difference. */
 .scene{
-  position:absolute; inset:0; opacity:0; visibility:hidden; transform:scale(1.03);
+  position:absolute; inset:0; opacity:0; visibility:hidden; transform:translateY(56px);
   transition:opacity 1.1s var(--ease), transform 1.1s var(--ease), visibility 0s linear 1.1s;
 }
 .scene.on{
-  opacity:1; visibility:visible; transform:scale(1);
+  opacity:1; visibility:visible; transform:translateY(0);
   transition:opacity 1.1s var(--ease), transform 1.1s var(--ease);
 }
 
@@ -178,40 +188,49 @@ html,body{ background:#111; height:100%; display:flex; align-items:center; justi
   color:var(--ink-faint); margin-top:6px; opacity:0; transform:translateY(10px);
 }
 
-/* ---------- animation timelines per scene ---------- */
-.scene#s1.on .review-card{ animation:cardIn .7s var(--ease-out) .3s forwards; }
-.scene#s1.on .headline .l1{ animation:fadeUp .8s var(--ease-out) 1.7s forwards; }
-.scene#s1.on .headline .l2{ animation:fadeUp .8s var(--ease-out) 2.5s forwards; }
+/* ---------- animation timelines per scene ----------
+   Gated on .reveal rather than .on: the scene's own slide-in transition and
+   a scene's ~7 staggered child animations all becoming eligible to start in
+   the exact same synchronous style recalc overloads render.mjs's per-frame
+   virtual-time animation capture (confirmed by isolating the two - the
+   container transition alone renders as a smooth multi-frame slide; adding
+   the children back makes the whole scene, container included, appear to
+   snap in on a single frame). play() adds .on immediately for the slide,
+   then .reveal one tick later so the children's animations start in a
+   separate recalc instead of piling on top of the container transition. */
+.scene#s1.reveal .review-card{ animation:cardIn .7s var(--ease-out) .3s forwards; }
+.scene#s1.reveal .headline .l1{ animation:fadeUp .8s var(--ease-out) 1.7s forwards; }
+.scene#s1.reveal .headline .l2{ animation:fadeUp .8s var(--ease-out) 2.5s forwards; }
 
-.scene#s2.on .headline .l1{ animation:fadeUp .8s var(--ease-out) .3s forwards; }
-.scene#s2.on .headline .l2{ animation:fadeUp .8s var(--ease-out) 1.1s forwards; }
-.scene#s2.on .app-card{ animation:cardIn .7s var(--ease-out) 1.9s forwards; }
-.scene#s2.on .app-card .head{ animation:fadeUp .6s var(--ease-out) 2.5s forwards; }
-.scene#s2.on .app-card .body-text{ animation:fadeUp .6s var(--ease-out) 3.1s forwards; }
-.scene#s2.on .app-card .footer{ animation:fadeUp .6s var(--ease-out) 3.7s forwards; }
-.scene#s2.on .app-card .btn-primary{ animation:pressBtn .35s var(--ease-out) 4.35s forwards; }
-.scene#s2.on .app-card .sent-pill{ animation:fadeUp .5s var(--ease-out) 4.6s forwards; }
+.scene#s2.reveal .headline .l1{ animation:fadeUp .8s var(--ease-out) .3s forwards; }
+.scene#s2.reveal .headline .l2{ animation:fadeUp .8s var(--ease-out) 1.1s forwards; }
+.scene#s2.reveal .app-card{ animation:cardIn .7s var(--ease-out) 1.9s forwards; }
+.scene#s2.reveal .app-card .head{ animation:fadeUp .6s var(--ease-out) 2.5s forwards; }
+.scene#s2.reveal .app-card .body-text{ animation:fadeUp .6s var(--ease-out) 3.1s forwards; }
+.scene#s2.reveal .app-card .footer{ animation:fadeUp .6s var(--ease-out) 3.7s forwards; }
+.scene#s2.reveal .app-card .btn-primary{ animation:pressBtn .35s var(--ease-out) 4.35s forwards; }
+.scene#s2.reveal .app-card .sent-pill{ animation:fadeUp .5s var(--ease-out) 4.6s forwards; }
 
-.scene#s3.on .pin{ animation:fadeUp .8s var(--ease-out) .35s forwards; }
+.scene#s3.reveal .pin{ animation:fadeUp .8s var(--ease-out) .35s forwards; }
 
-.scene#s4.on .headline .l1{ animation:fadeUp .8s var(--ease-out) .3s forwards; }
-.scene#s4.on .headline .l2{ animation:fadeUp .8s var(--ease-out) 1.1s forwards; }
-.scene#s4.on .app-card{ animation:cardIn .7s var(--ease-out) 1.9s forwards; }
-.scene#s4.on .app-card .head{ animation:fadeUp .6s var(--ease-out) 2.5s forwards; }
-.scene#s4.on .app-card .row:nth-of-type(1){ animation:fadeUp .55s var(--ease-out) 3.05s forwards; }
-.scene#s4.on .app-card .row:nth-of-type(2){ animation:fadeUp .55s var(--ease-out) 3.45s forwards; }
-.scene#s4.on .app-card .row:nth-of-type(3){ animation:fadeUp .55s var(--ease-out) 3.85s forwards; }
+.scene#s4.reveal .headline .l1{ animation:fadeUp .8s var(--ease-out) .3s forwards; }
+.scene#s4.reveal .headline .l2{ animation:fadeUp .8s var(--ease-out) 1.1s forwards; }
+.scene#s4.reveal .app-card{ animation:cardIn .7s var(--ease-out) 1.9s forwards; }
+.scene#s4.reveal .app-card .head{ animation:fadeUp .6s var(--ease-out) 2.5s forwards; }
+.scene#s4.reveal .app-card .row:nth-of-type(1){ animation:fadeUp .55s var(--ease-out) 3.05s forwards; }
+.scene#s4.reveal .app-card .row:nth-of-type(2){ animation:fadeUp .55s var(--ease-out) 3.45s forwards; }
+.scene#s4.reveal .app-card .row:nth-of-type(3){ animation:fadeUp .55s var(--ease-out) 3.85s forwards; }
 
-.scene#s5.on .headline .l1{ animation:fadeUp .8s var(--ease-out) .3s forwards; }
-.scene#s5.on .headline .l2{ animation:fadeUp .8s var(--ease-out) 1.1s forwards; }
-.scene#s5.on .app-card{ animation:cardIn .7s var(--ease-out) 1.9s forwards; }
-.scene#s5.on .app-card .flag-label{ animation:fadeUp .55s var(--ease-out) 2.5s forwards; }
-.scene#s5.on .app-card .struck{ animation:fadeUp .6s var(--ease-out) 2.95s forwards; }
-.scene#s5.on .app-card .caption{ animation:fadeUp .6s var(--ease-out) 3.65s forwards; }
+.scene#s5.reveal .headline .l1{ animation:fadeUp .8s var(--ease-out) .3s forwards; }
+.scene#s5.reveal .headline .l2{ animation:fadeUp .8s var(--ease-out) 1.1s forwards; }
+.scene#s5.reveal .app-card{ animation:cardIn .7s var(--ease-out) 1.9s forwards; }
+.scene#s5.reveal .app-card .flag-label{ animation:fadeUp .55s var(--ease-out) 2.5s forwards; }
+.scene#s5.reveal .app-card .struck{ animation:fadeUp .6s var(--ease-out) 2.95s forwards; }
+.scene#s5.reveal .app-card .caption{ animation:fadeUp .6s var(--ease-out) 3.65s forwards; }
 
-.scene#s6.on .logo{ animation:wrapIn .6s var(--ease-out) .3s forwards; }
-.scene#s6.on .tagline{ animation:fadeUp .8s var(--ease-out) 1.0s forwards; }
-.scene#s6.on .url{ animation:fadeUp .8s var(--ease-out) 1.7s forwards; }
+.scene#s6.reveal .logo{ animation:wrapIn .6s var(--ease-out) .3s forwards; }
+.scene#s6.reveal .tagline{ animation:fadeUp .8s var(--ease-out) 1.0s forwards; }
+.scene#s6.reveal .url{ animation:fadeUp .8s var(--ease-out) 1.7s forwards; }
 
 @keyframes fadeUp{ to{ opacity:1; transform:translateY(0); } }
 @keyframes cardIn{ to{ opacity:1; transform:scale(1) translateY(0); } }
@@ -375,12 +394,16 @@ function clearTimers(){ timers.forEach(t=>clearTimeout(t)); timers = []; }
 function play(){
   window.__REEL__.playStartedAt = performance.now();
   clearTimers();
-  scenes.forEach(s=> s.el.classList.remove('on'));
+  scenes.forEach(s=> { s.el.classList.remove('on'); s.el.classList.remove('reveal'); });
   let t = 0;
   scenes.forEach((s)=>{
     timers.push(setTimeout(()=>{
-      scenes.forEach(x=> x.el.classList.remove('on'));
+      scenes.forEach(x=> { x.el.classList.remove('on'); x.el.classList.remove('reveal'); });
       s.el.classList.add('on');
+      // .reveal (the scene's staggered child animations) is added a beat
+      // after .on (the scene's own slide-in) rather than together - see the
+      // CSS comment above the .reveal selectors for why.
+      timers.push(setTimeout(()=> s.el.classList.add('reveal'), 120));
     }, t));
     t += s.dur;
   });
