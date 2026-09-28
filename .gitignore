@@ -4,3 +4,4 @@ out/
 *.mov
 *.webm
 .DS_Store
+.env
