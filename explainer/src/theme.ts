@@ -11,7 +11,7 @@ export const C = {
   mint: '#e3f2ea',
 };
 
-export const SANS = "'General Sans', 'Instrument Sans', system-ui, sans-serif";
+export const SANS = "'General Sans', system-ui, sans-serif";
 export const MONO = "'Space Mono', ui-monospace, monospace";
 
 export const ease = Easing.bezier(0.2, 0.7, 0.2, 1);

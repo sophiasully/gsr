@@ -16,7 +16,7 @@ export const useLayout = (): Layout => {
  * right-hand panel, scaled down, with the illustration on the left.
  */
 const COL = {
-  vertical: {left: 90, scale: 1, head: 150, ui: 880},
+  vertical: {left: 90, scale: 1, head: 150, ui: 960},
   wide: {left: 1170, scale: 0.72, head: 120, ui: 420},
 };
 
@@ -58,51 +58,23 @@ export const Art: React.FC<{name: keyof typeof ART; zoom?: [number, number]; dur
         style={{
           position: 'absolute',
           inset: 0,
-          transform: `scale(${scale})`,
+          // In the vertical cut the art is lifted so the subject sits between
+          // the headline and the UI; the bottom scrim covers the gap.
+          transform: `translateY(${layout === 'vertical' ? art.lift : 0}px) scale(${scale})`,
           transformOrigin: layout === 'wide' ? '30% 50%' : '50% 40%',
         }}
       >
-        {file ? (
-          <Img
-            src={staticFile(file)}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: layout === 'wide' ? 'left center' : 'center',
-            }}
-          />
-        ) : (
-          <Placeholder bg={art.placeholder} label={art.label} />
-        )}
+        <Img
+          src={staticFile(file)}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: layout === 'wide' ? 'left center' : 'center',
+          }}
+        />
       </div>
       <Scrims />
-    </div>
-  );
-};
-
-const Placeholder: React.FC<{bg: string; label: string}> = ({bg, label}) => {
-  const layout = useLayout();
-  return (
-    <div style={{position: 'absolute', inset: 0, background: bg}}>
-      <div
-        style={{
-          position: 'absolute',
-          left: layout === 'wide' ? 80 : 90,
-          top: layout === 'wide' ? 'auto' : 780,
-          bottom: layout === 'wide' ? 80 : 'auto',
-          fontFamily: MONO,
-          fontSize: 22,
-          letterSpacing: '0.16em',
-          color: 'rgba(244,250,246,0.55)',
-          textTransform: 'uppercase',
-          border: '2px dashed rgba(244,250,246,0.3)',
-          padding: '14px 20px',
-          borderRadius: 12,
-        }}
-      >
-        Illustration: {label}
-      </div>
     </div>
   );
 };
@@ -127,7 +99,7 @@ const Scrims: React.FC = () => {
           position: 'absolute',
           inset: 0,
           background:
-            'linear-gradient(180deg, rgba(10,10,10,0.88) 0px, rgba(10,10,10,0.55) 380px, rgba(10,10,10,0) 640px)',
+            'linear-gradient(180deg, rgba(10,10,10,0.94) 0px, rgba(10,10,10,0.8) 400px, rgba(10,10,10,0) 700px)',
         }}
       />
       <div
@@ -135,7 +107,7 @@ const Scrims: React.FC = () => {
           position: 'absolute',
           inset: 0,
           background:
-            'linear-gradient(180deg, rgba(10,10,10,0) 900px, rgba(10,10,10,0.82) 1250px, rgba(10,10,10,0.97) 1500px)',
+            'linear-gradient(180deg, rgba(10,10,10,0) 860px, rgba(10,10,10,0.85) 1140px, rgba(10,10,10,0.97) 1400px)',
         }}
       />
     </>

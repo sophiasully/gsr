@@ -1,9 +1,10 @@
 import {continueRender, delayRender, staticFile} from 'remotion';
-import '@fontsource/instrument-sans/400.css';
-import '@fontsource/instrument-sans/500.css';
-import '@fontsource/instrument-sans/600.css';
 
 const faces: [string, string, string][] = [
+  ['General Sans', 'fonts/general-sans/GeneralSans-Regular.woff2', '400'],
+  ['General Sans', 'fonts/general-sans/GeneralSans-Medium.woff2', '500'],
+  ['General Sans', 'fonts/general-sans/GeneralSans-Semibold.woff2', '600'],
+  ['General Sans', 'fonts/general-sans/GeneralSans-Bold.woff2', '700'],
   ['Space Mono', 'fonts/space-mono/SpaceMono-Regular.woff2', '400'],
   ['Space Mono', 'fonts/space-mono/SpaceMono-Bold.woff2', '700'],
 ];

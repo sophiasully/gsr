@@ -14,7 +14,7 @@ const FEED = [
 
 const FIRST = 44;
 const EVERY = 26;
-const CARD = 176;
+const CARD = 190;
 const GROW = [30, 216] as const;
 
 export const Growth: React.FC<{dur: number}> = ({dur}) => {

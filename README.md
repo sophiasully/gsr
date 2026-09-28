@@ -11,6 +11,8 @@ HTML "slide decks" rendered to individual PNGs (carousel posts, etc).
 assets/fonts/           Self-hosted webfonts + fonts.css
 tools/render/render.mjs The HTML -> video renderer (reels)
 tools/render/slides.mjs The HTML -> PNG renderer (slide decks)
+explainer/src/          Remotion explainer video (vertical + wide cuts)
+assets/explainer/       Illustrations for the explainer (Nano Banana 2)
 out/                    Rendered output (gitignored)
 ```
 
@@ -118,3 +120,28 @@ outright in some timing windows (see upstream reports like
 [chrome-headless-render-pdf#29](https://github.com/Szpadel/chrome-headless-render-pdf/issues/29)).
 Slides have no timeline to pace, so that whole mechanism - and its fragility
 - is simply absent here.
+
+## The Remotion explainer
+
+`explainer/` is a ~36s explainer built with [Remotion](https://www.remotion.dev)
+instead of the HTML reel pipeline. One component tree renders two compositions:
+`Explainer-Vertical` (1080x1920) and `Explainer-Wide` (1920x1080). All copy and
+UI is laid out on a 900-unit column (`Region` in `ui.tsx`) that sits over the art
+in the vertical cut and becomes a scaled right-hand panel in the wide cut.
+
+```
+npx remotion studio                                   # live preview
+npx remotion render Explainer-Vertical out/tmp/v.mp4 --scale=2
+```
+
+Final exports follow the 2x supersample + Lanczos rule: render with `--scale=2`,
+then downsample with ffmpeg (`scale=iw/2:ih/2:flags=lanczos`, CRF 16).
+`remotion.config.ts` points Remotion at `assets/` as its public dir and at the
+preinstalled Playwright headless shell, so no Chrome download is needed.
+
+Illustrations were generated with Nano Banana 2 (`google/gemini-3.1-flash-image`
+on OpenRouter): a character reference of Rosa first, then each vertical scene
+with that reference (plus the chair scene for the salon interior), then each
+wide version recomposed from its vertical. Scene timing lives in `timeline.ts`
+and per-scene beats at the top of each file in `explainer/src/scenes/`.
+

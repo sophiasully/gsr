@@ -19,9 +19,11 @@
 }
 
 /*
-General Sans is distributed exclusively by Fontshare and isn't mirrored on
-any CDN this workspace can reach, so it's still loaded live from Fontshare
-(see the <link> tag each reel keeps in its <head>) instead of from here.
+General Sans is distributed exclusively by Fontshare. The Remotion explainer
+self-hosts Regular/Medium/Semibold/Bold from ./general-sans/ (downloaded via
+api.fontshare.com/v2/fonts/download/general-sans, ITF Free Font License in that
+folder). The HTML reels still load it live from Fontshare (see the <link> tag
+each reel keeps in its <head>).
 
 To self-host it (recommended before doing unattended/offline renders):
   1. Download the weights you use from https://www.fontshare.com/fonts/general-sans
