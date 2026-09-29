@@ -1,8 +1,7 @@
 import React from 'react';
 import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {C, MONO, SANS, prog} from '../theme';
+import {C, MONO, SANS} from '../theme';
 import {Art, Headline, Label, Region, Stars} from '../ui';
-import {useVariant} from '../variants';
 
 const NOTES = [
   {at: 78, source: 'Google', name: 'Priya S.', rating: 5, text: 'Best balayage I have ever had. Rosa is a genius.'},
@@ -13,25 +12,9 @@ const NOTES = [
 
 const NOTE_H = 172;
 
-const OPENINGS = {
-  A: [
-    {text: 'Four new reviews.', at: 14},
-    {text: 'Zero replies.', at: 46, color: C.green2},
-  ],
-  B: [
-    {text: 'Rosa runs a busy salon.', at: 14},
-    {text: 'Replying to reviews is a second job.', at: 46, color: C.green2},
-  ],
-  C: [
-    {text: 'After a long day,', at: 14},
-    {text: 'the reviews are still waiting.', at: 46, color: C.green2},
-  ],
-};
-
 export const Closing: React.FC<{dur: number}> = ({dur}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const {opening} = useVariant();
 
   const phoneIn = spring({frame: frame - 56, fps, config: {damping: 200}, durationInFrames: 30});
 
@@ -49,24 +32,11 @@ export const Closing: React.FC<{dur: number}> = ({dur}) => {
         <Headline
           label="9:47 PM · Studio Rosa"
           labelAt={6}
-          lines={OPENINGS[opening]}
+          lines={[
+            {text: 'Four new reviews.', at: 14},
+            {text: 'Zero replies.', at: 46, color: C.green2},
+          ]}
         />
-        {opening === 'A' ? null : (
-          <Label
-            style={{
-              display: 'inline-block',
-              marginTop: 30,
-              opacity: prog(frame, 146, 14),
-              color: C.cream,
-              background: 'rgba(34,160,107,0.9)',
-              padding: '10px 18px',
-              borderRadius: 10,
-              fontSize: 22,
-            }}
-          >
-            4 new reviews · 0 replied
-          </Label>
-        )}
       </Region>
       <Region kind="ui">
         <div
