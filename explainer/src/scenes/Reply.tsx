@@ -1,7 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {C, SANS, ease, prog} from '../theme';
-import {Art, Check, Headline, Label, Plane, Region, ReviewCard} from '../ui';
+import {C, SANS, ease, fadeUp, prog} from '../theme';
+import {Art, Check, Headline, Label, Plane, Region, ReviewCard, Wordmark} from '../ui';
+import {useVariant} from '../variants';
 
 const DRAFT =
   "Hi Dana, I'm so sorry about the wait on Saturday. That's not how anyone should feel in our chair. I'd love to make it right, so please message me directly. Rosa";
@@ -24,6 +25,7 @@ const T = {
 export const Reply: React.FC<{dur: number}> = ({dur}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const {reveal} = useVariant();
 
   const cardIn = spring({frame: frame - T.card, fps, config: {damping: 200}, durationInFrames: 26});
   const boxIn = prog(frame, T.box, 16);
@@ -62,12 +64,45 @@ export const Reply: React.FC<{dur: number}> = ({dur}) => {
           out={T.draft - 8}
         />
         <div style={{position: 'absolute', top: 0}}>
-          <Headline
-            label="GetSetReply"
-            labelAt={T.draft + 4}
-            lines={[{text: 'A reply was already waiting.', at: T.draft + 10}]}
-            out={T.tap - 10}
-          />
+          {reveal === 'now' ? (
+            <Headline
+              label="GetSetReply"
+              labelAt={T.draft + 4}
+              lines={[{text: 'A reply was already waiting.', at: T.draft + 10}]}
+              out={T.tap - 10}
+            />
+          ) : reveal === 'X' ? (
+            <Headline
+              lines={[
+                {text: <><span style={{color: C.green2}}>GetSetReply</span> already</>, at: T.draft + 6},
+                {text: 'drafted her a reply.', at: T.draft + 18},
+              ]}
+              out={T.tap - 10}
+            />
+          ) : (
+            <div
+              style={{
+                ...fadeUp(frame, T.draft + 4, {out: T.tap - 10}),
+              }}
+            >
+              <div style={{transform: `scale(${0.9 + 0.1 * spring({frame: frame - T.draft - 4, fps, config: {damping: 16}})})`, transformOrigin: 'left center'}}>
+                <Wordmark size={112} />
+              </div>
+              <div
+                style={{
+                  fontFamily: SANS,
+                  fontWeight: 500,
+                  fontSize: 58,
+                  letterSpacing: '-0.02em',
+                  color: C.cream,
+                  marginTop: 22,
+                  ...fadeUp(frame, T.draft + 20, {out: T.tap - 10}),
+                }}
+              >
+                writes the reply for you.
+              </div>
+            </div>
+          )}
         </div>
         <div style={{position: 'absolute', top: 0}}>
           <Headline
@@ -140,12 +175,24 @@ export const Reply: React.FC<{dur: number}> = ({dur}) => {
             transformOrigin: 'top center',
           }}
         >
-          <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-            <Plane size={26} color={C.green} />
-            <Label color={C.green} style={{fontSize: 20}}>
-              Drafted in your voice
-            </Label>
-          </div>
+          {reveal === 'now' ? (
+            <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+              <Plane size={26} color={C.green} />
+              <Label color={C.green} style={{fontSize: 20}}>
+                Drafted in your voice
+              </Label>
+            </div>
+          ) : (
+            <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+              <Plane size={30} color={C.green} />
+              <span style={{fontFamily: SANS, fontWeight: 700, fontSize: 30, letterSpacing: '-0.02em'}}>
+                Get<span style={{color: C.green}}>Set</span>Reply
+              </span>
+              <Label color="rgba(10,10,10,0.5)" style={{fontSize: 18, fontWeight: 400}}>
+                · drafted in your voice
+              </Label>
+            </div>
+          )}
           <div style={{fontFamily: SANS, fontSize: 35, lineHeight: 1.4, marginTop: 18}}>
             <span>{DRAFT.slice(0, typed)}</span>
             {typing ? (

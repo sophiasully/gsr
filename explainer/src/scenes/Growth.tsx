@@ -2,6 +2,7 @@ import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, SANS, easeInOut, prog} from '../theme';
 import {Art, Headline, Label, Region, ReviewCard, Stars} from '../ui';
+import {useVariant} from '../variants';
 
 const FEED = [
   {name: 'Jess K.', rating: 5, source: 'Google', text: 'Rosa listened to exactly what I wanted.'},
@@ -20,6 +21,7 @@ const GROW = [30, 216] as const;
 export const Growth: React.FC<{dur: number}> = ({dur}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const {reveal} = useVariant();
 
   const g = interpolate(frame, GROW, [0, 1], {
     extrapolateLeft: 'clamp',
@@ -47,7 +49,7 @@ export const Growth: React.FC<{dur: number}> = ({dur}) => {
           labelAt={4}
           lines={[
             {text: 'The reviews kept coming.', at: 8},
-            {text: 'So did the replies.', at: 40, color: C.green2},
+            {text: reveal === 'now' ? 'So did the replies.' : 'GetSetReply kept up.', at: 40, color: C.green2},
           ]}
         />
       </Region>

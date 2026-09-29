@@ -7,6 +7,7 @@ import {Growth} from './scenes/Growth';
 import {Reply} from './scenes/Reply';
 import {C} from './theme';
 import {SCENES, XFADE} from './timeline';
+import {VariantCtx, type Variants} from './variants';
 
 loadFonts();
 
@@ -23,7 +24,8 @@ const Fade: React.FC<{dur: number; first?: boolean; last?: boolean; children: Re
   return <AbsoluteFill style={{opacity: Math.min(inO, outO)}}>{children}</AbsoluteFill>;
 };
 
-export const Explainer: React.FC = () => (
+export const Explainer: React.FC<Variants> = (v) => (
+  <VariantCtx.Provider value={v}>
   <AbsoluteFill style={{background: C.ink}}>
     <Sequence from={SCENES.closing.from} durationInFrames={SCENES.closing.dur}>
       <Fade dur={SCENES.closing.dur} first>
@@ -46,4 +48,5 @@ export const Explainer: React.FC = () => (
       </Fade>
     </Sequence>
   </AbsoluteFill>
+  </VariantCtx.Provider>
 );
