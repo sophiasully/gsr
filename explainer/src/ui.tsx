@@ -205,11 +205,12 @@ export const Plane: React.FC<{size?: number; color?: string}> = ({size = 34, col
   </svg>
 );
 
-export const Wordmark: React.FC<{size?: number}> = ({size = 36}) => (
+/** Plane + wordmark. `light` is for cream backgrounds. */
+export const Wordmark: React.FC<{size?: number; light?: boolean}> = ({size = 36, light}) => (
   <div style={{display: 'flex', alignItems: 'center', gap: size * 0.38}}>
-    <Plane size={size * 0.94} />
-    <span style={{fontFamily: SANS, fontWeight: 700, fontSize: size, letterSpacing: '-0.02em', color: C.cream}}>
-      Get<span style={{color: C.green2}}>Set</span>Reply
+    <Plane size={size * 0.94} color={light ? C.green : C.green2} />
+    <span style={{fontFamily: SANS, fontWeight: 700, fontSize: size, letterSpacing: '-0.02em', color: light ? C.ink : C.cream}}>
+      Get<span style={{color: light ? C.green : C.green2}}>Set</span>Reply
     </span>
   </div>
 );
