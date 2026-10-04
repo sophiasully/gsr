@@ -81,6 +81,7 @@ export const RollCall: React.FC = () => {
               key={b.key}
               biz={b}
               size={visual.size}
+              frame={frame - i * BEAT}
               style={{
                 position: 'absolute',
                 left: 0,
@@ -379,6 +380,7 @@ export const Payoff: React.FC = () => {
             key={b.key}
             biz={b}
             size={size}
+            frame={frame + 60}
             tag={false}
             style={{
               position: 'absolute',

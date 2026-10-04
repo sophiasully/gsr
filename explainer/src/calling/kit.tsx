@@ -1,7 +1,8 @@
 import React from 'react';
-import {Img, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, MONO, SANS, prog} from '../theme';
 import {useLayout} from '../ui';
+import {BizArt} from './anim';
 
 /** Light theme for this video: cream ground, ink type, deep green accents. */
 export const L = {
@@ -17,15 +18,14 @@ export type Biz = {
   key: 'cafe' | 'auto' | 'dental' | 'florist';
   tag: string;
   line: string;
-  art: string | null;
   tint: string;
 };
 
 export const CAST: Biz[] = [
-  {key: 'cafe', tag: 'The cafe on 5th', line: 'You open at 6.', art: null, tint: '#e9dcc8'},
-  {key: 'auto', tag: 'The auto shop', line: 'You fix it right.', art: null, tint: '#d5ddd8'},
-  {key: 'dental', tag: 'The dentist down the street', line: 'You remember every name.', art: null, tint: '#dbe9e1'},
-  {key: 'florist', tag: 'The flower shop', line: "You make people's day.", art: null, tint: '#ecdcd9'},
+  {key: 'cafe', tag: 'The cafe on 5th', line: 'You open at 6.', tint: '#e9dcc8'},
+  {key: 'auto', tag: 'The auto shop', line: 'You fix it right.', tint: '#d5ddd8'},
+  {key: 'dental', tag: 'The dentist down the street', line: 'You remember every name.', tint: '#dbe9e1'},
+  {key: 'florist', tag: 'The flower shop', line: "You make people's day.", tint: '#ecdcd9'},
 ];
 
 /** Per-layout value. */
@@ -122,10 +122,11 @@ export const Tag: React.FC<{children: React.ReactNode; style?: React.CSSProperti
   </div>
 );
 
-/** An owner portrait in a rounded card, with an optional name tag. */
-export const Portrait: React.FC<{biz: Biz; size: number; tag?: boolean; style?: React.CSSProperties; children?: React.ReactNode}> = ({
+/** A business card: its animated vignette in a rounded tile, with an optional name tag. */
+export const Portrait: React.FC<{biz: Biz; size: number; frame: number; tag?: boolean; style?: React.CSSProperties; children?: React.ReactNode}> = ({
   biz,
   size,
+  frame,
   tag = true,
   style,
   children,
@@ -142,26 +143,7 @@ export const Portrait: React.FC<{biz: Biz; size: number; tag?: boolean; style?: 
       ...style,
     }}
   >
-    {biz.art ? (
-      <Img src={staticFile(biz.art)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-    ) : (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: MONO,
-          fontSize: size * 0.03,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          color: 'rgba(10,10,10,0.4)',
-        }}
-      >
-        Illustration: {biz.key} owner
-      </div>
-    )}
+    <BizArt kind={biz.key} frame={frame} />
     {tag ? <Tag style={{position: 'absolute', left: size * 0.04, bottom: size * 0.04, fontSize: Math.max(14, size * 0.024)}}>{biz.tag}</Tag> : null}
     {children}
   </div>

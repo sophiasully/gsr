@@ -145,3 +145,13 @@ with that reference (plus the chair scene for the salon interior), then each
 wide version recomposed from its vertical. Scene timing lives in `timeline.ts`
 and per-scene beats at the top of each file in `explainer/src/scenes/`.
 
+### "Calling all local businesses" (second video)
+
+`explainer/src/calling/` is a 38s companion piece on a light theme:
+`Calling-Vertical` and `Calling-Wide`. Kinetic type (`Words` in `kit.tsx`)
+carries the hook and problem beats, the solution plays out inside an in-app
+phone UI, and a four-business montage (cafe, auto shop, dentist, flower shop)
+opens and closes it. The business cards are animated SVG vignettes drawn in
+code (`anim.tsx`), so this video needs no generated images. Scene order and
+timing are in `Calling.tsx`; render it the same way as the first explainer.
+
